@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   profileService,
   type UserProfileResponseDto,
@@ -11,23 +11,7 @@ export const useUser = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        setLoading(true);
-        const profileData = await profileService.getMyProfile();
-        setUserProfile(profileData);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "An error occurred");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserProfile();
-  }, []);
-
-  const refetch = async () => {
+  const fetchUserProfile = useCallback(async () => {
     try {
       setLoading(true);
       const profileData = await profileService.getMyProfile();
@@ -37,12 +21,21 @@ export const useUser = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    fetchUserProfile().catch(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [fetchUserProfile]);
 
   return {
-    userProfile, 
+    userProfile,
     loading,
     error,
-    refetch,
+    refetch: fetchUserProfile,
+    setUserProfile, // optional: allow manual updates
   };
 };

@@ -3,10 +3,36 @@ import axios from "axios";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8081/api";
 
-interface LoginResponse {
-  token: string;
-  userId: string;
+export interface LoginResponse {
+  id: number;
+  name: string;
+  username: string;
   email: string;
+  country: string;
+  token: string;
+}
+
+export interface RegisterResponse {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  country: string;
+  role: string;
+  token: string | null;
+}
+
+export interface SignupValues {
+  name: string;
+  username: string;
+  email: string;
+  password: string;
+  country: string;
+  role?: string; // LEARNER or MENTOR
+  jobTitle?: string;
+  tags?: string;
+  hourRate?: number;
+  cvFile?: File;
 }
 
 const login = async (
@@ -21,13 +47,12 @@ const login = async (
     localStorage.setItem("token", response.data.token);
     return response.data;
   } catch (err: unknown) {
-    if (
-      axios.isAxiosError(err) &&
-      err.response?.data &&
-      typeof err.response.data === "object" &&
-      "message" in err.response.data
-    ) {
-      throw new Error((err.response.data as { message: string }).message);
+    if (axios.isAxiosError(err) && err.response?.data) {
+      const backendMessage =
+        typeof err.response.data === "string"
+          ? err.response.data
+          : (err.response.data as any).message || "Login failed";
+      throw new Error(backendMessage);
     } else if (err instanceof Error) {
       throw err;
     } else {
@@ -36,25 +61,30 @@ const login = async (
   }
 };
 
-type SignupValues = {
-  name: string;
-  username: string;
-  email: string;
-  password: string;
-  country: string;
-};
-
-const signup = async (data: SignupValues): Promise<void> => {
+const signup = async (data: SignupValues): Promise<RegisterResponse> => {
   try {
-    await axios.post(`${API_BASE}/auth/register`, data);
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+      if (value !== undefined && value !== null) {
+        formData.append(key, value as any);
+      }
+    });
+
+    const response = await axios.post<RegisterResponse>(
+      `${API_BASE}/auth/register`,
+      formData,
+      {
+        headers: { "Content-Type": "multipart/form-data" },
+      }
+    );
+    return response.data;
   } catch (err: unknown) {
-    if (
-      axios.isAxiosError(err) &&
-      err.response?.data &&
-      typeof err.response.data === "object" &&
-      "message" in err.response.data
-    ) {
-      throw new Error((err.response.data as { message: string }).message);
+    if (axios.isAxiosError(err) && err.response?.data) {
+      const backendMessage =
+        typeof err.response.data === "string"
+          ? err.response.data
+          : (err.response.data as any).message || "Signup failed";
+      throw new Error(backendMessage);
     } else if (err instanceof Error) {
       throw err;
     } else {
@@ -63,5 +93,21 @@ const signup = async (data: SignupValues): Promise<void> => {
   }
 };
 
+const getAuthToken = (): string | null => {
+  return localStorage.getItem("token");
+};
 
-export default { login, signup };
+const getAuthHeaders = () => {
+  const token = getAuthToken();
+  return {
+    headers: {
+      Authorization: token ? `Bearer ${token}` : "",
+    },
+  };
+};
+
+const logout = (): void => {
+  localStorage.removeItem("token");
+};
+
+export default { login, signup, getAuthToken, getAuthHeaders, logout };

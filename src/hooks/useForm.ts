@@ -1,39 +1,64 @@
-import { useState } from "react";
+// hooks/useForm.ts
+import { useState, useCallback } from "react";
 
-export function useForm<T extends Record<string, string>>(initialValues: T) {
+export function useForm<T extends Record<string, any>>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<
     Partial<Record<keyof T, string>> & { submit?: string }
   >({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
-  ) => {
-    const { name, value } = e.target;
-    setValues((prev) => ({ ...prev, [name]: value }));
-    setErrors((prev) => ({ ...prev, [name as keyof T]: "" }));
-  };
+  const handleChange = useCallback(
+    (
+      e: React.ChangeEvent<
+        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+      >
+    ) => {
+      const { name, type, value, files } = e.target as HTMLInputElement;
 
-  const handleSubmit = async (onSubmit: () => Promise<void> | void) => {
+      let newValue: any = value;
+      if (type === "file") newValue = files?.[0] ?? null;
+      if (type === "number") newValue = value ? Number(value) : "";
+
+      setValues((prev) => ({ ...prev, [name]: newValue }));
+
+      if (errors[name as keyof T]) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[name as keyof T];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
+  const setFieldValue = useCallback((name: keyof T, value: any) => {
+    setValues((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleSubmit = useCallback(async (onSubmit: () => Promise<void>) => {
     setIsSubmitting(true);
-    setErrors({});
     try {
       await onSubmit();
-    } catch (err) {
-      console.error(err);
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, []);
+
+  const resetForm = useCallback(() => {
+    setValues(initialValues);
+    setErrors({});
+  }, [initialValues]);
 
   return {
     values,
     errors,
-    setValues,
-    setErrors,
     isSubmitting,
     handleChange,
     handleSubmit,
+    setErrors,
+    setFieldValue,
+    resetForm,
   };
 }
