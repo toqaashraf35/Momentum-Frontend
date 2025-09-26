@@ -1,6 +1,6 @@
 // components/Avatar.tsx
 interface AvatarProps {
-  src?: string;
+  src?: string | null;
   alt?: string;
   name?: string;
   size?: "sm" | "md" | "lg" | "xl";
@@ -35,7 +35,7 @@ const Avatar = ({
   };
 
   // Handle API base URL for avatar sources
-  const getAvatarSrc = (src: string | undefined) => {
+  const getAvatarSrc = (src: string | null | undefined) => {
     if (!src) return undefined;
     return src.startsWith("http") ? src : `${API_BASE}${src}`;
   };
@@ -47,10 +47,13 @@ const Avatar = ({
           src={getAvatarSrc(src)}
           alt={alt}
           className="w-full h-full rounded-full object-cover"
+          onError={(e) => {
+            e.currentTarget.style.display = "none";
+          }}
         />
       ) : (
         <div className="w-full h-full rounded-full bg-gradient-to-br from-[var(--primary)] to-purple-600 flex items-center justify-center text-white font-bold">
-          {getInitials(name)}
+          {getInitials(name || "U")}
         </div>
       )}
     </div>

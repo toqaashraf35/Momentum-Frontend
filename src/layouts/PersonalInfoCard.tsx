@@ -1,4 +1,4 @@
-import { useUser } from "../hooks/useUser";
+import { useFetch } from "../hooks/useFetch";
 import {
   MapPin,
   Star,
@@ -11,10 +11,10 @@ import {
   Briefcase,
   User,
 } from "lucide-react";
-
+import profileService from "../services/profileService";
 
 const PersonalInfoCard = () => {
-  const { userProfile, loading } = useUser();
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
 
   if (loading) {
     return (
@@ -159,6 +159,7 @@ const PersonalInfoCard = () => {
                   href={`tel:${userProfile.phoneNumber}`}
                   className="text-gray-600 hover:text-blue-600"
                 >
+                  {userProfile.phoneCode}
                   {userProfile.phoneNumber}
                 </a>
               </div>
@@ -170,7 +171,9 @@ const PersonalInfoCard = () => {
             <div className="flex items-start">
               <Linkedin className="w-5 h-5 text-blue-700 mt-0.5 mr-3 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-700">linkedinLink</p>
+                <p className="text-sm font-medium text-gray-700">
+                  linkedinLink
+                </p>
                 <a
                   href={userProfile.linkedinLink}
                   target="_blank"

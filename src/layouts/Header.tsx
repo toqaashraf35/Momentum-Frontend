@@ -13,13 +13,15 @@ import {
   User as UserIcon,
   Menu,
 } from "lucide-react";
-import { useUser } from "../hooks/useUser";
+import { useFetch } from "../hooks/useFetch";
 import Avatar from "../components/Avatar"; // Import the Avatar component
+import profileService from "../services/profileService";
 
 const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { userProfile, loading } = useUser();
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
+
   const navigate = useNavigate();
 
   const navItems = [

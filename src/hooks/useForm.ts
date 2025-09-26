@@ -1,6 +1,7 @@
 // hooks/useForm.ts
 import { useState, useCallback } from "react";
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useForm<T extends Record<string, any>>(initialValues: T) {
   const [values, setValues] = useState<T>(initialValues);
   const [errors, setErrors] = useState<
@@ -16,6 +17,7 @@ export function useForm<T extends Record<string, any>>(initialValues: T) {
     ) => {
       const { name, type, value, files } = e.target as HTMLInputElement;
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let newValue: any = value;
       if (type === "file") newValue = files?.[0] ?? null;
       if (type === "number") newValue = value ? Number(value) : "";
@@ -33,6 +35,7 @@ export function useForm<T extends Record<string, any>>(initialValues: T) {
     [errors]
   );
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const setFieldValue = useCallback((name: keyof T, value: any) => {
     setValues((prev) => ({ ...prev, [name]: value }));
   }, []);
