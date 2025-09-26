@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Logo from "../assets/Logo.png";
 import {
   Home,
@@ -21,6 +21,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { userProfile, loading } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const navItems = [
     { name: "Home", icon: Home, link: "/" },
@@ -32,6 +33,10 @@ const Header = () => {
   const handleLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/login";
+  };
+
+  const isActiveLink = (link: string) => {
+    return location.pathname === link;
   };
 
   useEffect(() => {
@@ -72,15 +77,20 @@ const Header = () => {
             <div className="flex space-x-4 lg:space-x-8">
               {navItems.map((item) => {
                 const Icon = item.icon;
+                const isActive = isActiveLink(item.link);
                 return (
-                  <a
+                  <button
                     key={item.name}
-                    href={item.link}
-                    className="flex items-center px-2 py-2 rounded-lg text-sm font-medium text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)] transition-colors"
+                    onClick={() => navigate(item.link)}
+                    className={`flex items-center px-2 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'text-[var(--primary)] bg-[var(--light)]'
+                        : 'text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)]'
+                    }`}
                   >
                     <Icon className="h-5 w-5 mr-1.5" />
                     {item.name}
-                  </a>
+                  </button>
                 );
               })}
             </div>
@@ -92,16 +102,23 @@ const Header = () => {
               <div className="px-4 py-3 space-y-2">
                 {navItems.map((item) => {
                   const Icon = item.icon;
+                  const isActive = isActiveLink(item.link);
                   return (
-                    <a
+                    <button
                       key={item.name}
-                      href={item.link}
-                      className="flex items-center px-3 py-3 rounded-lg text-base font-medium text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)] transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
+                      onClick={() => {
+                        navigate(item.link);
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className={`w-full flex items-center px-3 py-3 rounded-lg text-base font-medium transition-colors ${
+                        isActive
+                          ? 'text-[var(--primary)] bg-[var(--light)]'
+                          : 'text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)]'
+                      }`}
                     >
-                      <Icon className="h-6 w-6 mr-3" />
+                      <Icon className="h-5 w-5 mr-3" />
                       {item.name}
-                    </a>
+                    </button>
                   );
                 })}
               </div>

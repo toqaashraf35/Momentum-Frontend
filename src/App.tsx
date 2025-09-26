@@ -5,6 +5,7 @@ import HomePage from "./pages/HomePage"
 import ProfilePage from "./pages/MyProfilePage";
 // import SignupAsMentorPage from "./pages/SignupAsMentorPage";
 import ChatbotPage from "./pages/ChatbotPage";
+import CommunitiesPage from "./pages/CommunitiesPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />}/>
         <Route path="/chatbot" element={<ChatbotPage />} />
+        <Route path="/communities" element={<CommunitiesPage />} />
       </Routes>
     </Router>
   );
