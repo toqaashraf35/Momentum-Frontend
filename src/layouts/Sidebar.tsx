@@ -10,11 +10,10 @@ import {
   Link,
   Github,
   Linkedin,
-  User,
+  User as UserIcon,
   X,
 } from "lucide-react";
-
-const API_BASE = "http://localhost:8081/api";
+import Avatar from "../components/Avatar"; // Import the Avatar component
 
 const Sidebar = ({
   isOpen,
@@ -25,19 +24,6 @@ const Sidebar = ({
 }) => {
   const { userProfile, loading } = useUser();
   const navigate = useNavigate();
-
-  const getInitialsAvatar = (name: string) => {
-    const names = name.split(" ");
-    let initials = names[0].charAt(0).toUpperCase();
-    if (names.length > 1) {
-      initials += names[names.length - 1].charAt(0).toUpperCase();
-    }
-    return (
-      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-xl md:text-2xl font-bold">
-        {initials}
-      </div>
-    );
-  };
 
   if (loading) {
     return (
@@ -78,15 +64,11 @@ const Sidebar = ({
 
           {/* Avatar Section */}
           <div className="flex flex-col items-center mb-6">
-            {userProfile?.avatarUrl ? (
-              <img
-                src={`${API_BASE}${userProfile.avatarUrl}`}
-                alt="Profile"
-                className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-[var(--border)]"
-              />
-            ) : (
-              getInitialsAvatar(userProfile?.name || "User")
-            )}
+            <Avatar
+              src={userProfile?.avatarURL}
+              name={userProfile?.name}
+              size="lg"
+            />
 
             <h2 className="text-lg md:text-xl font-bold mt-4 text-center text-[var(--main)]">
               {userProfile?.name}
@@ -101,8 +83,8 @@ const Sidebar = ({
                 <MapPin size={14} className="mr-1" />
                 <span>
                   {userProfile.city}
-                  {userProfile.userCountry
-                    ? `, ${userProfile.userCountry}`
+                  {userProfile.country
+                    ? `, ${userProfile.country}`
                     : ""}
                 </span>
               </div>
@@ -113,7 +95,7 @@ const Sidebar = ({
           {userProfile?.role === "MENTOR" && (
             <div className="border-t pt-4 mb-4">
               <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
-                <User size={16} className="mr-2" />
+                <UserIcon size={16} className="mr-2" />
                 Mentor Information
               </h3>
 
@@ -138,11 +120,11 @@ const Sidebar = ({
                 </div>
               )}
 
-              {userProfile?.price && (
+              {userProfile?.hourRate && (
                 <div className="flex items-center mb-2">
                   <DollarSign size={14} className="mr-2 text-green-500" />
                   <span className="text-xs md:text-sm text-[var(--dim)]">
-                    ${userProfile.price.toFixed(2)}/session
+                    ${userProfile.hourRate.toFixed(2)}/session
                   </span>
                 </div>
               )}
@@ -166,7 +148,7 @@ const Sidebar = ({
           {userProfile?.bio && (
             <div className="border-t pt-4 mb-4">
               <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
-                <User size={16} className="mr-2" />
+                <UserIcon size={16} className="mr-2" />
                 About
               </h3>
               <p className="text-xs md:text-sm text-[var(--dim)] leading-relaxed">
@@ -176,16 +158,16 @@ const Sidebar = ({
           )}
 
           {/* Social Links */}
-          {(userProfile?.linkedin || userProfile?.github) && (
+          {(userProfile?.linkedinLink || userProfile?.githubLink) && (
             <div className="border-t pt-4 mb-4">
               <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
                 <Link size={16} className="mr-2" />
                 Connect
               </h3>
               <div className="flex space-x-3">
-                {userProfile?.linkedin && (
+                {userProfile?.linkedinLink && (
                   <a
-                    href={userProfile.linkedin}
+                    href={userProfile.linkedinLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--primary)] hover:text-[var(--secondary)]"
@@ -193,9 +175,9 @@ const Sidebar = ({
                     <Linkedin size={18} />
                   </a>
                 )}
-                {userProfile?.github && (
+                {userProfile?.githubLink && (
                   <a
-                    href={userProfile.github}
+                    href={userProfile.githubLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-700 hover:text-gray-900"
@@ -208,27 +190,29 @@ const Sidebar = ({
           )}
 
           {/* Tags */}
-          <div className="border-t pt-4 mb-4">
-            <h3 className="font-semibold text-gray-700 mb-3 text-sm md:text-base">
-              Skills & Interests
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {userProfile?.tags?.map((tag, index) => (
-                <span
-                  key={index}
-                  className="px-2 py-1 bg-blue-100 text-[var(--secondary)] text-xs rounded-full"
-                >
-                  {tag}
-                </span>
-              ))}
+          {userProfile?.tags && userProfile.tags.length > 0 && (
+            <div className="border-t pt-4 mb-4">
+              <h3 className="font-semibold text-gray-700 mb-3 text-sm md:text-base">
+                Skills & Interests
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {userProfile?.tags?.map((tag, index) => (
+                  <span
+                    key={index}
+                    className="px-2 py-1 bg-blue-100 text-[var(--secondary)] text-xs rounded-full"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Complete profile hint */}
           {!userProfile?.bio &&
             !userProfile?.university &&
-            !userProfile?.linkedin &&
-            !userProfile?.github &&
+            !userProfile?.linkedinLink &&
+            !userProfile?.githubLink &&
             (!userProfile?.tags || userProfile.tags.length === 0) && (
               <div className="border-t pt-4 text-center">
                 <p className="text-xs md:text-sm text-[var(--dim)] mb-3">

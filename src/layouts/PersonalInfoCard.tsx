@@ -56,15 +56,15 @@ const PersonalInfoCard = () => {
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* Location */}
-          {(userProfile?.city || userProfile?.userCountry) && (
+          {(userProfile?.city || userProfile?.country) && (
             <div className="flex items-start">
               <MapPin className="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Location</p>
                 <p className="text-gray-600">
-                  {userProfile?.city && userProfile?.userCountry
-                    ? `${userProfile.city}, ${userProfile.userCountry}`
-                    : userProfile?.city || userProfile?.userCountry}
+                  {userProfile?.city && userProfile?.country
+                    ? `${userProfile.city}, ${userProfile.country}`
+                    : userProfile?.city || userProfile?.country}
                 </p>
               </div>
             </div>
@@ -110,13 +110,13 @@ const PersonalInfoCard = () => {
           )}
 
           {/* Price */}
-          {userProfile?.price && (
+          {userProfile?.hourRate && (
             <div className="flex items-start">
               <DollarSign className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Price</p>
                 <p className="text-gray-600">
-                  ${userProfile.price.toFixed(2)}/session
+                  ${userProfile.hourRate.toFixed(2)}/session
                 </p>
               </div>
             </div>
@@ -134,16 +134,16 @@ const PersonalInfoCard = () => {
           )}
 
           {/* userEmail */}
-          {userProfile?.userEmail && (
+          {userProfile?.email && (
             <div className="flex items-start">
               <Mail className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Email</p>
                 <a
-                  href={`mailto:${userProfile.userEmail}`}
+                  href={`mailto:${userProfile.email}`}
                   className="text-blue-600 hover:underline break-all"
                 >
-                  {userProfile.userEmail}
+                  {userProfile.email}
                 </a>
               </div>
             </div>
@@ -165,41 +165,41 @@ const PersonalInfoCard = () => {
             </div>
           )}
 
-          {/* LinkedIn */}
-          {userProfile?.linkedin && (
+          {/* linkedinLink */}
+          {userProfile?.linkedinLink && (
             <div className="flex items-start">
               <Linkedin className="w-5 h-5 text-blue-700 mt-0.5 mr-3 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-700">LinkedIn</p>
+                <p className="text-sm font-medium text-gray-700">linkedinLink</p>
                 <a
-                  href={userProfile.linkedin}
+                  href={userProfile.linkedinLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline break-all"
                 >
-                  {userProfile.linkedin.length > 30
-                    ? `${userProfile.linkedin.substring(0, 30)}...`
-                    : userProfile.linkedin}
+                  {userProfile.linkedinLink.length > 30
+                    ? `${userProfile.linkedinLink.substring(0, 30)}...`
+                    : userProfile.linkedinLink}
                 </a>
               </div>
             </div>
           )}
 
           {/* GitHub */}
-          {userProfile?.github && (
+          {userProfile?.githubLink && (
             <div className="flex items-start">
               <Github className="w-5 h-5 text-gray-700 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-gray-700">GitHub</p>
                 <a
-                  href={userProfile.github}
+                  href={userProfile.githubLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-blue-600 hover:underline break-all"
                 >
-                  {userProfile.github.length > 30
-                    ? `${userProfile.github.substring(0, 30)}...`
-                    : userProfile.github}
+                  {userProfile.githubLink.length > 30
+                    ? `${userProfile.githubLink.substring(0, 30)}...`
+                    : userProfile.githubLink}
                 </a>
               </div>
             </div>

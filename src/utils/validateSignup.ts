@@ -6,6 +6,11 @@ type SignupValues = {
   country: string;
   password: string;
   confirmPassword: string;
+  role?: string; // LEARNER or MENTOR
+  jobTitle?: string;
+  tags?: string[];
+  hourRate?: number;
+  cvFile?: File;
 };
 
 type SignupErrors = Partial<Record<keyof SignupValues, string>> & {
@@ -15,16 +20,17 @@ type SignupErrors = Partial<Record<keyof SignupValues, string>> & {
 export const validateSignup = (values: SignupValues): SignupErrors => {
   const errors: SignupErrors = {};
 
-  if (!values.name.trim()) errors.name = "Full name is required";
-  if (!values.username.trim()) errors.username = "Username is required";
+  // General fields
+  if (!values.name?.trim()) errors.name = "Full name is required";
+  if (!values.username?.trim()) errors.username = "Username is required";
 
-  if (!values.email.trim()) {
+  if (!values.email?.trim()) {
     errors.email = "Email is required";
   } else if (!/^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(values.email)) {
     errors.email = "Email is invalid";
   }
 
-  if (!values.country.trim()) errors.country = "Country is required";
+  if (!values.country?.trim()) errors.country = "Country is required";
 
   if (!values.password) {
     errors.password = "Password is required";
@@ -36,6 +42,22 @@ export const validateSignup = (values: SignupValues): SignupErrors => {
     errors.confirmPassword = "Confirm your password";
   } else if (values.password !== values.confirmPassword) {
     errors.confirmPassword = "Passwords do not match";
+  }
+
+  // Role-specific validations
+  if (values.role === "MENTOR") {
+    if (!values.jobTitle?.trim()) {
+      errors.jobTitle = "Job title is required for mentors";
+    }
+    if (values.tags && values.tags.length === 0) {
+      errors.tags = "Please select at least one tag";
+    }
+    if (!values.hourRate || values.hourRate <= 0) {
+      errors.hourRate = "Hourly rate must be greater than 0";
+    }
+    if (!values.cvFile) {
+      errors.cvFile = "CV upload is required for mentors";
+    }
   }
 
   return errors;

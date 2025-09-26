@@ -10,12 +10,11 @@ import {
   Mail,
   ChevronDown,
   LogOut,
-  User,
+  User as UserIcon,
   Menu,
 } from "lucide-react";
 import { useUser } from "../hooks/useUser";
-
-const API_BASE = "http://localhost:8081/api";
+import Avatar from "../components/Avatar"; // Import the Avatar component
 
 const Header = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -127,14 +126,10 @@ const Header = () => {
                 {loading ? (
                   <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                 ) : (
-                  <img
-                    src={
-                      userProfile?.avatarUrl
-                        ? `${API_BASE}${userProfile.avatarUrl}`
-                        : "https://via.placeholder.com/40"
-                    }
-                    alt="Profile"
-                    className="w-8 h-8 rounded-full object-cover"
+                  <Avatar
+                    src={userProfile?.avatarURL}
+                    name={userProfile?.name}
+                    size="sm"
                   />
                 )}
                 <span className="hidden md:inline text-sm font-medium text-[var(--main)]">
@@ -151,14 +146,10 @@ const Header = () => {
               {isProfileOpen && (
                 <div className="absolute right-0 top-full mt-2 w-48 md:w-72 bg-white rounded-xl shadow-lg border border-[var(--border)] py-4 z-50">
                   <div className="flex items-center gap-3 px-4 md:px-5 pb-3">
-                    <img
-                      src={
-                        userProfile?.avatarUrl
-                          ? `${API_BASE}${userProfile.avatarUrl}`
-                          : "https://via.placeholder.com/40"
-                      }
-                      alt="Profile"
-                      className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover"
+                    <Avatar
+                      src={userProfile?.avatarURL}
+                      name={userProfile?.name}
+                      size="md"
                     />
                     <div className="flex flex-col">
                       <div className="font-semibold text-[var(--main)] text-sm">
@@ -182,7 +173,7 @@ const Header = () => {
                       setIsProfileOpen(false);
                     }}
                   >
-                    <User size={16} />
+                    <UserIcon size={16} />
                     <span>View Profile</span>
                   </button>
 
