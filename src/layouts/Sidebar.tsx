@@ -1,4 +1,4 @@
-import { useUser } from "../hooks/useUser";
+import { useFetch } from "../hooks/useFetch";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 import {
@@ -6,14 +6,11 @@ import {
   Briefcase,
   Star,
   DollarSign,
-  GraduationCap,
-  Link,
-  Github,
-  Linkedin,
   User as UserIcon,
   X,
 } from "lucide-react";
 import Avatar from "../components/Avatar"; // Import the Avatar component
+import profileService from "../services/profileService";
 
 const Sidebar = ({
   isOpen,
@@ -22,8 +19,29 @@ const Sidebar = ({
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
 }) => {
-  const { userProfile, loading } = useUser();
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
   const navigate = useNavigate();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const calculateProfileCompletion = (profile: any) => {
+    if (!profile) return 0;
+
+    let completed = 0;
+
+    if (profile.bio) completed++;
+    if (profile.avatarURL) completed++;
+    if (profile.phoneNumber) completed++;
+    if (profile.city) completed++;
+    if (profile.tags && profile.tags.length > 0) completed++;
+    if (profile.jobTitle) completed++;
+    if (profile.university) completed++;
+    if (profile.githubLink) completed++;
+    if (profile.linkedinLink) completed++;
+
+    return Math.round((completed / 9) * 100);
+  };
+
+  const completion = calculateProfileCompletion(userProfile);
 
   if (loading) {
     return (
@@ -83,9 +101,7 @@ const Sidebar = ({
                 <MapPin size={14} className="mr-1" />
                 <span>
                   {userProfile.city}
-                  {userProfile.country
-                    ? `, ${userProfile.country}`
-                    : ""}
+                  {userProfile.country ? `, ${userProfile.country}` : ""}
                 </span>
               </div>
             )}
@@ -131,19 +147,6 @@ const Sidebar = ({
             </div>
           )}
 
-          {/* Education */}
-          {userProfile?.university && (
-            <div className="border-t pt-4 mb-4">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
-                <GraduationCap size={16} className="mr-2" />
-                Education
-              </h3>
-              <span className="text-xs md:text-sm text-[var(--dim)]">
-                {userProfile.university}
-              </span>
-            </div>
-          )}
-
           {/* About */}
           {userProfile?.bio && (
             <div className="border-t pt-4 mb-4">
@@ -157,75 +160,24 @@ const Sidebar = ({
             </div>
           )}
 
-          {/* Social Links */}
-          {(userProfile?.linkedinLink || userProfile?.githubLink) && (
-            <div className="border-t pt-4 mb-4">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
-                <Link size={16} className="mr-2" />
-                Connect
-              </h3>
-              <div className="flex space-x-3">
-                {userProfile?.linkedinLink && (
-                  <a
-                    href={userProfile.linkedinLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[var(--primary)] hover:text-[var(--secondary)]"
-                  >
-                    <Linkedin size={18} />
-                  </a>
-                )}
-                {userProfile?.githubLink && (
-                  <a
-                    href={userProfile.githubLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-700 hover:text-gray-900"
-                  >
-                    <Github size={18} />
-                  </a>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Tags */}
-          {userProfile?.tags && userProfile.tags.length > 0 && (
-            <div className="border-t pt-4 mb-4">
-              <h3 className="font-semibold text-gray-700 mb-3 text-sm md:text-base">
-                Skills & Interests
-              </h3>
-              <div className="flex flex-wrap gap-2">
-                {userProfile?.tags?.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="px-2 py-1 bg-blue-100 text-[var(--secondary)] text-xs rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Complete profile hint */}
-          {!userProfile?.bio &&
-            !userProfile?.university &&
-            !userProfile?.linkedinLink &&
-            !userProfile?.githubLink &&
-            (!userProfile?.tags || userProfile.tags.length === 0) && (
-              <div className="border-t pt-4 text-center">
-                <p className="text-xs md:text-sm text-[var(--dim)] mb-3">
-                  Complete your profile to showcase more information
-                </p>
-                <Button
-                  children="Edit Profile"
-                  type="button"
-                  onClick={() => navigate("/profile")}
-                  className="text-xs md:text-sm px-3 py-1.5"
-                />
-              </div>
-            )}
+          <div className="w-full mb-4">
+            <p className="text-xs text-gray-500 mb-1">
+              Profile completed {completion}%
+            </p>
+            <div className="w-full h-2 bg-gray-200 rounded-full">
+              <div
+                className="h-2 bg-green-500 rounded-full"
+                style={{ width: `${completion}%` }}
+              ></div>
+            </div>
+          </div>
+          <Button
+            children="Complete your Profile"
+            type="button"
+            onClick={() => navigate("/profile")}
+            className="text-xs md:text-sm px-3 py-1.5"
+          />
         </div>
       </aside>
     </>

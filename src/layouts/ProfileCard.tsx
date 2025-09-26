@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { useUser } from "../hooks/useUser";
+import { useFetch } from "../hooks/useFetch";
 import { Edit3, Briefcase, User, Users, UserPlus } from "lucide-react";
 import Avatar from "../components/Avatar";
 import EditProfileModal from "../components/EditProfile"; // Import the modal component
+import profileService from "../services/profileService";
 
 const ProfileCard = () => {
-  const { userProfile, loading } = useUser();
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); // State for modal visibility
 
   if (loading) {

@@ -1,17 +1,20 @@
 import { Send, MoreVertical, Trash2, Copy } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { useUser } from "../hooks/useUser";
+import { useFetch } from "../hooks/useFetch";
 import Input from "../components/Input";
 import Avatar from "../components/Avatar";
+import Title from "../components/Title";
+import profileService from "../services/profileService";
 
 type ChatProps = {
   mode?: "chatbot" | "chat"; // default chatbot
 };
 
 export default function Chat({ mode = "chatbot" }: ChatProps) {
-  const { userProfile } = useUser();
+  const { data: userProfile } = useFetch(profileService.getMyProfile);
 
   const [message, setMessage] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [messages, setMessages] = useState<any[]>([]);
   const [activeMessageMenu, setActiveMessageMenu] = useState<number | null>(
     null
@@ -86,16 +89,10 @@ export default function Chat({ mode = "chatbot" }: ChatProps) {
   return (
     <div className="flex flex-col justify-between items-center h-full">
       {/* Header */}{" "}
-      <div className="flex flex-col mb-4">
-        <h1 className="text-2xl font-bold mb-1 text-[var(--main)]">
-          {mode === "chatbot" ? "AI Assistant" : ""}
-        </h1>
-        <span className="text-sm text-[var(--dim)]">
-          {mode === "chatbot"
-            ? "Get instant help with mentors, communities, and platform guidance"
-            : ""}
-        </span>
-      </div>
+      <Title
+        title="AI Assistant"
+        subtitle="Get instant help with mentors, communities, and platform guidance"
+      />
       {/* Main chat box */}
       <div
         className={`grid grid-rows-[15%_75%_10%] border border-[var(--border)] rounded-lg 

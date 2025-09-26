@@ -1,38 +1,69 @@
-// hooks/useFetch.ts
-import { useState, useEffect } from "react";
-import  axios, {type AxiosRequestConfig } from "axios";
+// import { useState, useEffect, useCallback } from "react";
+// import {
+//   profileService,
+//   type UserProfileResponseDto,
+// } from "../services/profileService";
 
-export function useFetch<T>(url: string, config?: AxiosRequestConfig) {
+// export const useUser = () => {
+//   const [userProfile, setUserProfile] = useState<UserProfileResponseDto | null>(
+//     null
+//   );
+//   const [loading, setLoading] = useState(true);
+//   const [error, setError] = useState<string | null>(null);
+
+//   const fetchUserProfile = useCallback(async () => {
+//     try {
+//       setLoading(true);
+//       const profileData = await profileService.getMyProfile();
+//       setUserProfile(profileData);
+//     } catch (err) {
+//       setError(err instanceof Error ? err.message : "An error occurred");
+//     } finally {
+//       setLoading(false);
+//     }
+//   }, []);
+
+//   useEffect(() => {
+//     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//     let isMounted = true;
+//     fetchUserProfile().catch(() => {});
+//     return () => {
+//       isMounted = false;
+//     };
+//   }, [fetchUserProfile]);
+
+//   return {
+//     userProfile,
+//     loading,
+//     error,
+//     refetch: fetchUserProfile,
+//     setUserProfile, // optional: allow manual updates
+//   };
+// };
+
+import { useState, useEffect, useCallback } from "react";
+
+export const useFetch = <T>(fetcher: () => Promise<T>) => {
   const [data, setData] = useState<T | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string>("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const fetchData = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const result = await fetcher();
+      setData(result);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  }, [fetcher]);
 
   useEffect(() => {
-    let isMounted = true; 
+    fetchData().catch(() => {});
+  }, [fetchData]);
 
-    const fetchData = async () => {
-      setIsLoading(true);
-      setError("");
-      try {
-        const response = await axios.get<T>(url, config);
-        if (isMounted) setData(response.data);
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          setError(err.message || "Error fetching data");
-        } else {
-          setError("Error fetching data");
-        }
-      } finally {
-        if (isMounted) setIsLoading(false);
-      }
-    };
-
-    fetchData();
-
-    return () => {
-      isMounted = false;
-    };
-  }, [url, config]);
-
-  return { data, isLoading, error };
-}
+  return { data, loading, error, refetch: fetchData, setData };
+};

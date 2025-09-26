@@ -3,7 +3,7 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import HomePage from "./pages/HomePage"
 import ProfilePage from "./pages/MyProfilePage";
-// import SignupAsMentorPage from "./pages/SignupAsMentorPage";
+import MentorsPage from "./pages/MentorsPage";
 import ChatbotPage from "./pages/ChatbotPage";
 
 function App() {
@@ -13,7 +13,7 @@ function App() {
         {/* Login Page */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
-        {/* <Route path="/signup-mentor" element={<SignupAsMentorPage />} /> */}
+        <Route path="/mentors" element={<MentorsPage />} />
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />}/>
         <Route path="/chatbot" element={<ChatbotPage />} />

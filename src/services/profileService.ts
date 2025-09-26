@@ -12,6 +12,7 @@ export interface UserProfileResponseDto {
   email: string;
   bio?: string;
   phoneNumber?: string;
+  phoneCode?: string;
   jobTitle?: string;
   university?: string;
   tags?: string[];
@@ -32,6 +33,7 @@ export interface UpdateProfileRequest {
   country?: string | null;
   bio?: string | null;
   phoneNumber?: string | null;
+  phoneCode?: string | null;
   jobTitle?: string | null;
   university?: string | null;
   tags?: string[] | null;
@@ -42,8 +44,16 @@ export interface UpdateProfileRequest {
   hourRate?: number | null;
 }
 
+interface PaginatedResponse<T> {
+  content: T[]; 
+  totalPages: number; 
+  totalElements: number; 
+  size: number; 
+  number: number; 
+}
 
-export const profileService = {
+
+const profileService = {
   getMyProfile: async (): Promise<UserProfileResponseDto> => {
     try {
       const response = await axios.get<UserProfileResponseDto>(
@@ -132,11 +142,15 @@ export const profileService = {
       }
     }
   },
-
-  getMentors: async (): Promise<UserProfileResponseDto[]> => {
+  
+  getMentors: async (
+    page: number = 0
+  ): Promise<PaginatedResponse<UserProfileResponseDto>> => {
     try {
-      const response = await axios.get<UserProfileResponseDto[]>(
-        `${API_BASE}/profile/mentors`,
+      const response = await axios.get<
+        PaginatedResponse<UserProfileResponseDto>
+      >(
+        `${API_BASE}/profile/mentors?page=${page}`,
         authService.getAuthHeaders()
       );
       return response.data;
@@ -179,3 +193,5 @@ export const profileService = {
     }
   },
 };
+
+export default profileService;

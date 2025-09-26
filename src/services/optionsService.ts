@@ -22,8 +22,10 @@ export const optionsService = {
   },
 
   getUniversities: async (): Promise<string[]> => {
-    const res = await axios.get<string[]>(`${API_BASE}/universities`);
-    return res.data;
+    const res = await axios.get<{ id: number, name: string }[]>(
+      `${API_BASE}/universities`
+    );
+    return res.data.map((u) => u.name);
   },
 
   getJobTitles: async (): Promise<string[]> => {
