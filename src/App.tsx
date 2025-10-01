@@ -5,6 +5,9 @@ import HomePage from "./pages/HomePage"
 import ProfilePage from "./pages/MyProfilePage";
 import MentorsPage from "./pages/MentorsPage";
 import ChatbotPage from "./pages/ChatbotPage";
+import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AnotherProfilePage from "./pages/AnotherProfilePage";
+import ReviewApplicationPage from "./pages/ReviewApplicationPage";
 
 function App() {
   return (
@@ -17,6 +20,9 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />}/>
         <Route path="/chatbot" element={<ChatbotPage />} />
+        <Route path="/admin/dashboard" element={<AdminDashboardPage/>} />
+        <Route path="/profile/:id" element={<AnotherProfilePage />} />
+        <Route path="/admin/application/:id" element={<ReviewApplicationPage />} />
       </Routes>
     </Router>
   );

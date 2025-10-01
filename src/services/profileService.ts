@@ -45,13 +45,12 @@ export interface UpdateProfileRequest {
 }
 
 interface PaginatedResponse<T> {
-  content: T[]; 
-  totalPages: number; 
-  totalElements: number; 
-  size: number; 
-  number: number; 
+  content: T[];
+  totalPages: number;
+  totalElements: number;
+  size: number;
+  number: number;
 }
-
 
 const profileService = {
   getMyProfile: async (): Promise<UserProfileResponseDto> => {
@@ -77,13 +76,45 @@ const profileService = {
     }
   },
 
+  getAnotherProfile: async (
+    profileId: number
+  ): Promise<UserProfileResponseDto> => {
+    try {
+      const response = await axios.get<UserProfileResponseDto>(
+        `${API_BASE}/profile/${profileId}`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to fetch profile. Please try again.");
+      }
+    }
+  },
+
   updateProfile: async (
     profileData: UpdateProfileRequest
   ): Promise<UserProfileResponseDto> => {
     try {
+      // Clean the data - remove null/undefined values that might cause issues
+      const cleanedData = Object.fromEntries(
+        Object.entries(profileData).filter(
+          ([_, value]) => value !== undefined && value !== null && value !== ""
+        )
+      );
+
       const response = await axios.patch<UserProfileResponseDto>(
         `${API_BASE}/profile/me`,
-        profileData,
+        cleanedData,
         authService.getAuthHeaders()
       );
       return response.data;
@@ -104,20 +135,35 @@ const profileService = {
   },
 
   uploadAvatar: async (file: File): Promise<UserProfileResponseDto> => {
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
 
-    const response = await axios.post<UserProfileResponseDto>(
-      `${API_BASE}/profile/me/avatar`,
-      formData,
-      {
-        headers: {
-          ...authService.getAuthHeaders().headers,
-          "Content-Type": "multipart/form-data",
-        },
+      const response = await axios.post<UserProfileResponseDto>(
+        `${API_BASE}/profile/me/avatar`,
+        formData,
+        {
+          headers: {
+            ...authService.getAuthHeaders().headers,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to upload avatar. Please try again.");
       }
-    );
-    return response.data;
+    }
   },
 
   getTopRatedMentors: async (): Promise<UserProfileResponseDto[]> => {
@@ -142,7 +188,7 @@ const profileService = {
       }
     }
   },
-  
+
   getMentors: async (
     page: number = 0
   ): Promise<PaginatedResponse<UserProfileResponseDto>> => {
@@ -189,6 +235,99 @@ const profileService = {
         throw err;
       } else {
         throw new Error("Failed to fetch learners. Please try again.");
+      }
+    }
+  },
+
+  followProfile: async (profileId: number): Promise<string> => {
+    try {
+      const response = await axios.post<string>(
+        `${API_BASE}/profile/${profileId}/follow`,
+        {},
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to follow profile. Please try again.");
+      }
+    }
+  },
+
+  unfollowProfile: async (profileId: number): Promise<string> => {
+    try {
+      const response = await axios.delete<string>(
+        `${API_BASE}/profile/${profileId}/unfollow`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to unfollow profile. Please try again.");
+      }
+    }
+  },
+
+  getAllFollowers: async (): Promise<UserProfileResponseDto[]> => {
+    try {
+      const response = await axios.get<UserProfileResponseDto[]>(
+        `${API_BASE}/profile/followers`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to fetch followers. Please try again.");
+      }
+    }
+  },
+
+  getAllFollowing: async (): Promise<UserProfileResponseDto[]> => {
+    try {
+      const response = await axios.get<UserProfileResponseDto[]>(
+        `${API_BASE}/profile/following`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to fetch following. Please try again.");
       }
     }
   },

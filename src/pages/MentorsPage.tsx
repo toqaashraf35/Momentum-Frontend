@@ -7,28 +7,24 @@ import IdentificationCardComponent, {
   type MentorCardProps,
 } from "../components/IdentificationCard";
 import profileService from "../services/profileService";
-import {type UserProfileResponseDto} from "../services/profileService";
+import { type UserProfileResponseDto } from "../services/profileService";
 import { useFetch } from "../hooks/useFetch";
-
+import Alert from "../components/Alert";
+import authService from "../services/authService";
 
 const MentorsPage = () => {
   const [currentPage, setCurrentPage] = useState(0);
+  const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   const navigate = useNavigate();
 
   // Fetch mentors page using useFetch
-const fetchMentors = useCallback(
-  () => profileService.getMentors(currentPage),
-  [currentPage]
-);
+  const fetchMentors = useCallback(
+    () => profileService.getMentors(currentPage),
+    [currentPage]
+  );
 
-const { data: mentorsPage, loading, error, refetch } = useFetch(fetchMentors);
+  const { data: mentorsPage, loading, error, refetch } = useFetch(fetchMentors);
 
-useEffect(() => {
-  refetch();
-}, [currentPage, refetch]);
-
-
-  // Update refetch when currentPage changes
   useEffect(() => {
     refetch();
   }, [currentPage, refetch]);
@@ -51,12 +47,17 @@ useEffect(() => {
     hourRate: mentor.hourRate || 5,
     onBookSession: handleBookSession,
   });
+  const handleLogout = () => {
+    setIsLogoutAlertOpen(false);
+    authService.logout();
+    navigate("/login");
+  };
 
   // Render loading
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="pt-24 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Title
@@ -95,7 +96,7 @@ useEffect(() => {
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="pt-24 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Title
@@ -124,7 +125,7 @@ useEffect(() => {
   if (!mentorsPage?.content || mentorsPage.content.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="pt-24 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Title
@@ -150,12 +151,12 @@ useEffect(() => {
   // Render mentors grid
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
       <div className="pt-24 pb-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <Title
             title="Mentors"
-            subtitle={`Connect with ${mentorsPage.content.length} experienced mentors ready to guide you`}
+            subtitle={`Connect with experienced mentors ready to guide you`}
           />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {mentorsPage.content.map((mentor) => (
@@ -188,6 +189,17 @@ useEffect(() => {
           </div>
         </div>
       </div>
+      {/* Logout Alert */}
+      {isLogoutAlertOpen && (
+        <Alert
+          title="Confirm Logout"
+          description="Are you sure you want to log out of your account?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          onCancel={() => setIsLogoutAlertOpen(false)}
+          onConfirm={handleLogout}
+        />
+      )}
     </div>
   );
 };
