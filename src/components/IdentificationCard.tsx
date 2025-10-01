@@ -137,7 +137,7 @@ const IdentificationCard: React.FC<IdentificationCardProps> = (props) => {
             </div>
 
             <div className="text-right">
-              <span className="text-gray-700 ">${hourRate}/session</span>
+              <span className="text-gray-700 ">${hourRate}/hour</span>
             </div>
           </div>
 

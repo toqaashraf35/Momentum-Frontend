@@ -11,7 +11,8 @@ import {
 } from "lucide-react";
 import Avatar from "./Avatar";
 import EditProfileModal from "./EditProfile";
-import profileService from "../services/profileService";
+import FollowersFollowingModal from "./FollowersFollowingModal";
+import profileService, { type UserProfileResponseDto } from "../services/profileService";
 import Button from "./Button";
 import Alert from "./Alert";
 
@@ -32,7 +33,13 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
 
-  // ✅ Alert state
+  // Modal states
+  const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
+  const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false);
+  const [followers, setFollowers] = useState<UserProfileResponseDto[]>([]);
+  const [following, setFollowing] = useState<UserProfileResponseDto[]>([]);
+  const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
+  const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
   const [isUnfollowAlertOpen, setIsUnfollowAlertOpen] = useState(false);
 
   useEffect(() => {
@@ -62,6 +69,36 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
       await refetch();
     } catch (err) {
       console.error("Error while toggling follow:", err);
+    }
+  };
+
+  const handleOpenFollowers = async () => {
+    if (!userProfile) return;
+
+    setIsLoadingFollowers(true);
+    try {
+      const followersData = await profileService.getAllFollowers();
+      setFollowers(followersData);
+      setIsFollowersModalOpen(true);
+    } catch (err) {
+      console.error("Error fetching followers:", err);
+    } finally {
+      setIsLoadingFollowers(false);
+    }
+  };
+
+  const handleOpenFollowing = async () => {
+    if (!userProfile) return;
+
+    setIsLoadingFollowing(true);
+    try {
+      const followingData = await profileService.getAllFollowing();
+      setFollowing(followingData);
+      setIsFollowingModalOpen(true);
+    } catch (err) {
+      console.error("Error fetching following:", err);
+    } finally {
+      setIsLoadingFollowing(false);
     }
   };
 
@@ -157,7 +194,12 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
           </div>
 
           <div className="flex justify-center sm:justify-start space-x-6 md:space-x-8 mt-4 md:mt-0 md:ml-auto border-t md:border-t-0 pt-4 md:pt-0 border-gray-200">
-            <div className="text-center flex flex-col items-center">
+            {/* Followers - Clickable */}
+            <button
+              onClick={handleOpenFollowers}
+              disabled={isLoadingFollowers}
+              className="text-center cursor-pointer flex flex-col items-center hover:bg-gray-50 p-2 rounded-lg transition-colors disabled:opacity-50"
+            >
               <div className="flex items-center gap-1 mb-1">
                 <Users size={16} className="text-[var(--primary)]" />
                 <span className="block text-lg font-semibold text-[var(--main)]">
@@ -167,9 +209,14 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
               <span className="text-xs md:text-sm text-[var(--dim)]">
                 Followers
               </span>
-            </div>
+            </button>
 
-            <div className="text-center flex flex-col items-center">
+            {/* Following - Clickable */}
+            <button
+              onClick={handleOpenFollowing}
+              disabled={isLoadingFollowing}
+              className="text-center cursor-pointer flex flex-col items-center hover:bg-gray-50 p-2 rounded-lg transition-colors disabled:opacity-50"
+            >
               <div className="flex items-center gap-1 mb-1">
                 <UserPlus size={16} className="text-[var(--primary)]" />
                 <span className="block text-lg font-semibold text-[var(--main)]">
@@ -179,7 +226,7 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
               <span className="text-xs md:text-sm text-[var(--dim)]">
                 Following
               </span>
-            </div>
+            </button>
           </div>
         </div>
         {/* Actions */}
@@ -240,6 +287,24 @@ const ProfileCard = ({ userId }: { userId?: number }) => {
           onClose={() => setIsEditModalOpen(false)}
         />
       )}
+
+      {/* Followers Modal */}
+      <FollowersFollowingModal
+        isOpen={isFollowersModalOpen}
+        onClose={() => setIsFollowersModalOpen(false)}
+        type="followers"
+        users={followers}
+        title="Followers"
+      />
+
+      {/* Following Modal */}
+      <FollowersFollowingModal
+        isOpen={isFollowingModalOpen}
+        onClose={() => setIsFollowingModalOpen(false)}
+        type="following"
+        users={following}
+        title="Following"
+      />
 
       {/* ✅ Unfollow Alert */}
       {isUnfollowAlertOpen && (
