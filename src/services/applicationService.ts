@@ -2,51 +2,118 @@
 import axios from "axios";
 import authService from "./authService";
 
-const API_BASE_URL = "http://localhost:8081/api";
+const API_BASE = "http://localhost:8081/api";
 
-const mentorService = {
-  async submitApplication(applicationData: { hourlyRate: number; cv: File }) {
-    const formData = new FormData();
-    formData.append("hourlyRate", applicationData.hourlyRate.toString());
-    formData.append("cv", applicationData.cv);
+export interface MentorApplicationResponseDto {
+  id: number;
+  name: string;
+  username: string;
+  email: string;
+  country: string;
+  submittedDate: Date;
+  jobTitle: string;
+  tags: string[];
+  hourRate: number;
+  cvLink: string;
+  status: string;
+}
 
-    const response = await axios.post(
-      `${API_BASE_URL}/mentor/applications`,
-      formData,
-      {
-        headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `Bearer ${authService.getAuthToken()}`,
-        },
+const applicationService = {
+  getApplicationsByStatus: async (
+    status: string
+  ): Promise<MentorApplicationResponseDto[]> => {
+    try {
+      const response = await axios.get<MentorApplicationResponseDto[]>(
+        `${API_BASE}/application?status=${status}`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to fetch applications. Please try again.");
       }
-    );
-
-    return response.data;
+    }
   },
 
-//   async getMyApplication() {
-//     const response = await axios.get(`${API_BASE_URL}/mentor-applications/me`, {
-//       headers: {
-//         Authorization: `Bearer ${api.getToken()}`,
-//       },
-//     });
+  approveApplication: async (appId: number): Promise<void> => {
+    try {
+      await axios.post(
+        `${API_BASE}/application/${appId}/approve`,
+        {},
+        authService.getAuthHeaders()
+      );
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to approve application. Please try again.");
+      }
+    }
+  },
 
-//     return response.data;
-//   },
+  rejectApplication: async (appId: number): Promise<void> => {
+    try {
+      await axios.post(
+        `${API_BASE}/application/${appId}/reject`,
+        {},
+        authService.getAuthHeaders()
+      );
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to reject application. Please try again.");
+      }
+    }
+  },
 
-//   async updateApplication(id: number, updateData: { hourlyRate?: number }) {
-//     const response = await axios.put(
-//       `${API_BASE_URL}/mentor-applications/${id}`,
-//       updateData,
-//       {
-//         headers: {
-//           Authorization: `Bearer ${api.getToken()}`,
-//         },
-//       }
-//     );
-
-//     return response.data;
-//   },
+  getApplicationById: async (
+    appId: number
+  ): Promise<MentorApplicationResponseDto> => {
+    try {
+      const response = await axios.get<MentorApplicationResponseDto>(
+        `${API_BASE}/application/${appId}`,
+        authService.getAuthHeaders()
+      );
+      return response.data;
+    } catch (err: unknown) {
+      if (
+        axios.isAxiosError(err) &&
+        err.response?.data &&
+        typeof err.response.data === "object" &&
+        "message" in err.response.data
+      ) {
+        throw new Error((err.response.data as { message: string }).message);
+      } else if (err instanceof Error) {
+        throw err;
+      } else {
+        throw new Error("Failed to fetch applications. Please try again.");
+      }
+    }
+  },
 };
 
-export default mentorService;
+export default applicationService;

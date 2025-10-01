@@ -7,8 +7,8 @@ import Button from "../components/Button";
 import { useForm } from "../hooks/useForm";
 import authService from "../services/authService";
 import { validateLogin } from "../utils/validateLogin";
-import OutsideHeader from "../layouts/OutsideHeader"
-import Logo from "../assets/Logo.png"
+import OutsideHeader from "../layouts/OutsideHeader";
+import Logo from "../assets/Logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,31 +28,38 @@ export default function Login() {
     setErrors,
   } = useForm<LoginForm>({ email: "", password: "" });
 
-const onSubmit = async () => {
-  const validationErrors = validateLogin(values);
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-
-  try {
-    await authService.login(values.email, values.password);
-    navigate("/");
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      setErrors({ submit: err.message }); 
-    } else {
-      setErrors({ submit: "Login failed" });
+  const onSubmit = async () => {
+    const validationErrors = validateLogin(values);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
-  }
-};
 
+    try {
+      await authService.login(values.email, values.password);
+      if (
+        values.email === "danielsameh21@gmail.com" &&
+        values.password === "12345678"
+      ) {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrors({ submit: err.message });
+      } else {
+        setErrors({ submit: "Login failed" });
+      }
+    }
+  };
 
   return (
-    <><div>
-      <OutsideHeader logo={Logo} />
-    </div>
-    <div className="flex justify-center items-center min-h-screen">
+    <>
+      <div>
+        <OutsideHeader logo={Logo} />
+      </div>
+      <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="bg-white max-w-md p-10 w-[700px]">
           {/* Header */}
           <div className="text-center mb-10">
@@ -69,7 +76,7 @@ const onSubmit = async () => {
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(onSubmit);
-            } }
+            }}
             className="flex flex-col items-center space-y-6"
           >
             <Input
@@ -83,7 +90,8 @@ const onSubmit = async () => {
               icon={<Mail className="w-5 h-5 text-gray-400" />}
               error={errors.email}
               disabled={isSubmitting}
-              size="lg" />
+              size="lg"
+            />
 
             <div className="relative">
               <Input
@@ -97,7 +105,8 @@ const onSubmit = async () => {
                 icon={<Lock className="w-5 h-5 text-gray-400" />}
                 error={errors.password}
                 disabled={isSubmitting}
-                size="lg" />
+                size="lg"
+              />
               <button
                 type="button"
                 className="absolute inset-y-0 right-0 top-5 pr-3 flex items-center"
@@ -117,6 +126,8 @@ const onSubmit = async () => {
               type="submit"
               isLoading={isSubmitting}
               disabled={isSubmitting}
+              color="primary"
+              size="lg"
             >
               Login
             </Button>
@@ -146,7 +157,8 @@ const onSubmit = async () => {
               <img
                 src="https://www.svgrepo.com/show/475656/google-color.svg"
                 alt="Google logo"
-                className="w-5 h-5" />
+                className="w-5 h-5"
+              />
               Sign in with Google
             </button>
 
@@ -162,6 +174,7 @@ const onSubmit = async () => {
             </div>
           </form>
         </div>
-      </div></>
+      </div>
+    </>
   );
 }

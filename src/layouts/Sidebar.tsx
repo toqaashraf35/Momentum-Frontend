@@ -109,11 +109,11 @@ const Sidebar = ({
 
           {/* Mentor Info */}
           {userProfile?.role === "MENTOR" && (
-            <div className="border-t pt-4 mb-4">
-              <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
+            <div className="border-t pt-4 mb-4 items-center">
+              {/* <h3 className="font-semibold text-gray-700 mb-3 flex items-center text-sm md:text-base">
                 <UserIcon size={16} className="mr-2" />
                 Mentor Information
-              </h3>
+              </h3> */}
 
               {userProfile?.jobTitle && (
                 <div className="flex items-center mb-2">
@@ -123,27 +123,7 @@ const Sidebar = ({
                   </span>
                 </div>
               )}
-
-              {userProfile?.rating && (
-                <div className="flex items-center mb-2">
-                  <Star
-                    size={14}
-                    className="mr-2 text-yellow-500 fill-yellow-500"
-                  />
-                  <span className="text-xs md:text-sm text-[var(--dim)]">
-                    {userProfile.rating.toFixed(1)} Rating
-                  </span>
-                </div>
-              )}
-
-              {userProfile?.hourRate && (
-                <div className="flex items-center mb-2">
-                  <DollarSign size={14} className="mr-2 text-green-500" />
-                  <span className="text-xs md:text-sm text-[var(--dim)]">
-                    ${userProfile.hourRate.toFixed(2)}/session
-                  </span>
-                </div>
-              )}
+              <div></div>
             </div>
           )}
 
@@ -159,6 +139,39 @@ const Sidebar = ({
               </p>
             </div>
           )}
+          <div className="flex items-center justify-evenly mb-2">
+            {userProfile?.rating ||
+              (userProfile?.rating === 0 && (
+                <div className="flex flex-col items-center bg-orange-100 p-4 rounded-lg">
+                  <p className="text-sm text-[var(--main)] font-semibold">
+                    Rating
+                  </p>
+                  <div className="flex items-center">
+                    <Star
+                      size={14}
+                      className="mr-2 text-yellow-500 fill-yellow-500"
+                    />
+                    <span className="text-xs md:text-sm text-[var(--dim)]">
+                      {userProfile.rating.toFixed(1)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+
+            {userProfile?.hourRate && (
+              <div className="flex flex-col items-center bg-green-100 p-4 rounded-lg">
+                <p className="text-sm text-[var(--main)] font-semibold">
+                  Session rate
+                </p>
+                <div className="flex items-center">
+                  <DollarSign size={14} className="mr-2 text-green-500" />
+                  <span className="text-xs md:text-sm text-[var(--dim)]">
+                    {userProfile.hourRate.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Complete profile hint */}
           <div className="w-full mb-4">
@@ -176,7 +189,8 @@ const Sidebar = ({
             children="Complete your Profile"
             type="button"
             onClick={() => navigate("/profile")}
-            className="text-xs md:text-sm px-3 py-1.5"
+            color="primary"
+            size="md"
           />
         </div>
       </aside>

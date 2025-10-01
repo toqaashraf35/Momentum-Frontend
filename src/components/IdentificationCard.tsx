@@ -1,7 +1,9 @@
 // components/IdentificationCardComponent.tsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Button from "./Button";
 import Avatar from "./Avatar";
+import { Check } from "lucide-react";
 
 export type CardType = "community" | "mentor";
 
@@ -30,11 +32,9 @@ export interface MentorCardProps {
 
 type IdentificationCardProps = CommunityCardProps | MentorCardProps;
 
-const IdentificationCard: React.FC<IdentificationCardProps> = (
-  props
-) => {
+const IdentificationCard: React.FC<IdentificationCardProps> = (props) => {
   const [isHovered, setIsHovered] = useState(false);
-
+  const navigate = useNavigate();
   // Render Community Card
   if (props.type === "community") {
     const { image, name, description, membersCount, isJoined, onJoin } = props;
@@ -69,11 +69,17 @@ const IdentificationCard: React.FC<IdentificationCardProps> = (
             <Button
               onClick={() => onJoin?.(props.id)}
               disabled={isJoined}
-              className={`w-32 ${
-                isJoined ? "bg-gray-400 hover:bg-gray-400" : ""
-              }`}
+              color={isJoined ? "secondary" : "primary"}
+              size="md"
             >
-              {isJoined ? "Joined" : "Join"}
+              {isJoined ? (
+                <>
+                  <Check className="w-4 h-4 mr-2" />
+                  Joined
+                </>
+              ) : (
+                "Join"
+              )}
             </Button>
           </div>
         </div>
@@ -91,11 +97,13 @@ const IdentificationCard: React.FC<IdentificationCardProps> = (
       rating,
       hourRate,
       onBookSession,
+      id,
     } = props;
 
     return (
       <div
-        className="bg-white rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative"
+        className="bg-white cursor-pointer rounded-xl shadow-md overflow-hidden transition-all duration-300 hover:shadow-lg relative"
+        onClick={() => navigate(`/profile/${id}`)}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
@@ -129,7 +137,7 @@ const IdentificationCard: React.FC<IdentificationCardProps> = (
             </div>
 
             <div className="text-right">
-              <span className="text-gray-700 ">${hourRate}/hour</span>
+              <span className="text-gray-700 ">${hourRate}/session</span>
             </div>
           </div>
 
@@ -140,11 +148,12 @@ const IdentificationCard: React.FC<IdentificationCardProps> = (
                 ? "opacity-100 translate-y-0"
                 : "opacity-0 translate-y-2"
             }`}
+            onClick={(e) => {
+              e.stopPropagation(); 
+              onBookSession?.(id);
+            }}
           >
-            <Button
-              onClick={() => onBookSession?.(props.id)}
-              className="w-full"
-            >
+            <Button color="primary" size="md">
               Book session
             </Button>
           </div>

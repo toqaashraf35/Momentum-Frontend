@@ -12,9 +12,25 @@ import {
   User,
 } from "lucide-react";
 import profileService from "../services/profileService";
+import { useCallback } from "react";
 
-const PersonalInfoCard = () => {
-  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
+interface PersonalInfoCardProps {
+  userId?: number;
+}
+
+const PersonalInfoCard = ({ userId }: PersonalInfoCardProps) => {
+  const isMyProfile = !userId;
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const fetchUser = useCallback(
+    isMyProfile
+      ? () => profileService.getMyProfile()
+      : () => profileService.getAnotherProfile(userId!),
+    [isMyProfile, userId]
+  );
+
+  const { data: userProfile, loading } = useFetch(fetchUser);
+  
 
   if (loading) {
     return (
@@ -38,6 +54,14 @@ const PersonalInfoCard = () => {
             ))}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (!userProfile) {
+    return (
+      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
+        <p className="text-gray-500">No profile data available</p>
       </div>
     );
   }
@@ -81,36 +105,23 @@ const PersonalInfoCard = () => {
             </div>
           )}
 
-          {/* Rating */}
-          {userProfile?.rating && (
+          {/* Rating - Fixed condition */}
+          {(userProfile?.rating || userProfile?.rating === 0) && (
             <div className="flex items-start">
               <Star className="w-5 h-5 text-yellow-500 fill-yellow-500 mt-0.5 mr-3 flex-shrink-0" />
               <div>
                 <p className="text-sm font-medium text-gray-700">Rating</p>
                 <div className="flex items-center">
                   <span className="text-gray-600 mr-2">
-                    {userProfile.rating.toFixed(1)}
+                    {userProfile.rating?.toFixed(1)}
                   </span>
-                  <div className="flex">
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={`${
-                          i < Math.floor(userProfile.rating as number)
-                            ? "text-yellow-500 fill-yellow-500"
-                            : "text-gray-300"
-                        } ${i < 4 ? "mr-1" : ""}`}
-                      />
-                    ))}
-                  </div>
                 </div>
               </div>
             </div>
           )}
 
           {/* Price */}
-          {userProfile?.hourRate && (
+          {userProfile?.hourRate && userProfile.hourRate > 0 && (
             <div className="flex items-start">
               <DollarSign className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
               <div>
@@ -133,8 +144,8 @@ const PersonalInfoCard = () => {
             </div>
           )}
 
-          {/* userEmail */}
-          {userProfile?.email && (
+          {/* Email - Only show for own profile or if publicly visible */}
+          {userProfile?.email && (isMyProfile || userProfile.email) && (
             <div className="flex items-start">
               <Mail className="w-5 h-5 text-red-500 mt-0.5 mr-3 flex-shrink-0" />
               <div>
@@ -149,31 +160,30 @@ const PersonalInfoCard = () => {
             </div>
           )}
 
-          {/* Phone Number */}
-          {userProfile?.phoneNumber && (
-            <div className="flex items-start">
-              <Phone className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
-              <div>
-                <p className="text-sm font-medium text-gray-700">Phone</p>
-                <a
-                  href={`tel:${userProfile.phoneNumber}`}
-                  className="text-gray-600 hover:text-blue-600"
-                >
-                  {userProfile.phoneCode}
-                  {userProfile.phoneNumber}
-                </a>
+          {/* Phone Number - Only show for own profile or if publicly visible */}
+          {userProfile?.phoneNumber &&
+            (isMyProfile || userProfile.phoneNumber) && (
+              <div className="flex items-start">
+                <Phone className="w-5 h-5 text-green-600 mt-0.5 mr-3 flex-shrink-0" />
+                <div>
+                  <p className="text-sm font-medium text-gray-700">Phone</p>
+                  <a
+                    href={`tel:${userProfile.phoneCode}${userProfile.phoneNumber}`}
+                    className="text-gray-600 hover:text-blue-600"
+                  >
+                    {userProfile.phoneCode && `${userProfile.phoneCode} `}
+                    {userProfile.phoneNumber}
+                  </a>
+                </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* linkedinLink */}
+          {/* LinkedIn */}
           {userProfile?.linkedinLink && (
             <div className="flex items-start">
               <Linkedin className="w-5 h-5 text-blue-700 mt-0.5 mr-3 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-gray-700">
-                  linkedinLink
-                </p>
+                <p className="text-sm font-medium text-gray-700">LinkedIn</p>
                 <a
                   href={userProfile.linkedinLink}
                   target="_blank"

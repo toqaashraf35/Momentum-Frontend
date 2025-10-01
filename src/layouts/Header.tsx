@@ -14,14 +14,18 @@ import {
   Menu,
 } from "lucide-react";
 import { useFetch } from "../hooks/useFetch";
-import Avatar from "../components/Avatar"; // Import the Avatar component
+import Avatar from "../components/Avatar";
 import profileService from "../services/profileService";
 
-const Header = () => {
+type HeaderProps = {
+  onLogoutClick: () => void; 
+};
+
+const Header = ({ onLogoutClick }: HeaderProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
 
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
   const navigate = useNavigate();
 
   const navItems = [
@@ -30,11 +34,6 @@ const Header = () => {
     { name: "Communities", icon: MessageCircle, link: "/communities" },
     { name: "Chatbot", icon: Bot, link: "/chatbot" },
   ];
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -183,7 +182,7 @@ const Header = () => {
 
                   <button
                     className="flex items-center gap-3 w-full px-4 md:px-5 py-2 text-sm hover:bg-gray-50 hover:text-[var(--primary)]"
-                    onClick={handleLogout}
+                    onClick={onLogoutClick} 
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

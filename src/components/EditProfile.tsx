@@ -1,12 +1,12 @@
-// EditProfileModal.tsx
 import { useState, useRef, useEffect } from "react";
 import { X, Upload } from "lucide-react";
 import Avatar from "./Avatar";
 import Input from "./Input";
 import Button from "./Button";
 import Select from "./Select";
-import profileService from "../services/profileService";
-import {type UpdateProfileRequest} from "../services/profileService";
+import profileService, {
+  type UpdateProfileRequest,
+} from "../services/profileService";
 import { useFetch } from "../hooks/useFetch";
 import { useOptions } from "../hooks/useOptions";
 
@@ -15,21 +15,32 @@ interface EditProfileModalProps {
   onClose: () => void;
 }
 
-const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
-  const { data: userProfile, refetch } = useFetch(profileService.getMyProfile);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
-  const [avatarFile, setAvatarFile] = useState<File | null>(null);
-  const { countries, phoneCodes, tags, jobTitles, universities } = useOptions();
+interface FormData {
+  name: string;
+  username: string;
+  email: string;
+  country: string;
+  bio: string;
+  hourRate: number | null;
+  github: string;
+  linkedin: string;
+  jobTitle: string;
+  university: string;
+  city: string;
+  phoneCode: string;
+  phoneNumber: string;
+  tags: string[];
+  avatarURL: string;
+}
 
-  const [formData, setFormData] = useState({
+const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
+  const [formData, setFormData] = useState<FormData>({
     name: "",
     username: "",
     email: "",
     country: "",
     bio: "",
-    hourRate: null as number | null,
+    hourRate: null,
     github: "",
     linkedin: "",
     jobTitle: "",
@@ -37,8 +48,16 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
     city: "",
     phoneCode: "",
     phoneNumber: "",
-    tags: [] as string[],
+    tags: [],
+    avatarURL: "",
   });
+  const { data: userProfile, refetch } = useFetch(profileService.getMyProfile);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const { countries, phoneCodes, tags, jobTitles, universities, cities } =
+    useOptions(formData.country || undefined);
 
   // Fill form with user data
   useEffect(() => {
@@ -61,22 +80,39 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         phoneCode: userProfile.phoneCode || "",
         phoneNumber: userProfile.phoneNumber || "",
         tags: Array.isArray(userProfile.tags) ? userProfile.tags : [],
+        avatarURL: userProfile.avatarURL || "",
       });
+      setAvatarPreview(userProfile.avatarURL || null);
     }
   }, [userProfile]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      setAvatarFile(null);
+      setAvatarPreview(userProfile?.avatarURL || null);
+    }
+  }, [isOpen, userProfile]);
+
+  // Unified handle change
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({
+      ...prev,
+      [name]: name === "hourRate" ? (value ? Number(value) : null) : value,
+      ...(name === "country" && { city: "" }), // Reset city when country changes
+    }));
   };
 
-  const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const setFieldValue = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  // Handle multiple select (tags)
+  const handleTagsChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedOptions = Array.from(
+      e.target.selectedOptions,
+      (opt) => opt.value
+    );
+    setFormData((prev) => ({ ...prev, tags: selectedOptions }));
   };
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,30 +121,24 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
       setAvatarFile(file);
 
       const reader = new FileReader();
-      reader.onload = (e) => {
-        setAvatarPreview(e.target?.result as string);
-      };
+      reader.onload = (ev) => setAvatarPreview(ev.target?.result as string);
       reader.readAsDataURL(file);
     }
   };
-
-  useEffect(() => {
-    if (isOpen && userProfile) {
-      setAvatarPreview(userProfile.avatarURL || null);
-      setAvatarFile(null);
-    }
-  }, [isOpen, userProfile]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
-      // upload avatar if changed
+      // Upload avatar first if there's a new file
+      let avatarUrl = formData.avatarURL;
       if (avatarFile) {
-        await profileService.uploadAvatar(avatarFile);
+        const avatarResponse = await profileService.uploadAvatar(avatarFile);
+        avatarUrl = avatarResponse.avatarURL || "";
       }
 
+      // Prepare update data - only send defined values and handle empty strings
       const updateData: UpdateProfileRequest = {
         name: formData.name.trim() || null,
         username: formData.username.trim() || null,
@@ -121,15 +151,21 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
         university: formData.university.trim() || null,
         city: formData.city.trim() || null,
         phoneNumber: formData.phoneNumber.trim() || null,
-        tags: formData.tags,
-        hourRate: formData.hourRate ? formData.hourRate : null,
+        phoneCode: formData.phoneCode.trim() || null,
+        tags: formData.tags.length > 0 ? formData.tags : null,
+        hourRate: formData.hourRate || null,
+        avatarURL: avatarUrl || null,
       };
 
+      // Remove undefined properties
+      Object.keys(updateData).forEach((key) => {
+        if (updateData[key as keyof UpdateProfileRequest] === undefined) {
+          delete updateData[key as keyof UpdateProfileRequest];
+        }
+      });
+
       await profileService.updateProfile(updateData);
-
-      // refresh user data immediately
       await refetch();
-
       onClose();
     } catch (error) {
       console.error("Failed to update profile:", error);
@@ -152,6 +188,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
           <button
             onClick={onClose}
             className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+            type="button"
           >
             <X size={24} />
           </button>
@@ -194,7 +231,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               name="name"
               label="Full Name"
               value={formData.name}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Your full name"
             />
             <Input
@@ -202,7 +239,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               name="username"
               label="Username"
               value={formData.username}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Your username"
             />
             <Input
@@ -211,15 +248,15 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               type="email"
               label="Email"
               value={formData.email}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Your email"
             />
             <Select
-              id="Country"
+              id="country"
               label="Country"
               name="country"
               value={formData.country}
-              onChange={(e) => setFieldValue("country", e.target.value)}
+              onChange={handleChange}
               options={countries}
               size="md"
             />
@@ -231,7 +268,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
             name="bio"
             label="Bio"
             value={formData.bio}
-            onChange={handleInputChange}
+            onChange={handleChange}
             placeholder="Tell us about yourself"
             size="2xl"
           />
@@ -243,7 +280,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               name="github"
               label="GitHub URL"
               value={formData.github}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="https://github.com/username"
             />
             <Input
@@ -251,7 +288,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               name="linkedin"
               label="LinkedIn URL"
               value={formData.linkedin}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="https://linkedin.com/in/username"
             />
           </div>
@@ -263,28 +300,27 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               label="Job Title"
               name="jobTitle"
               value={formData.jobTitle}
-              onChange={handleSelectChange}
+              onChange={handleChange}
               options={jobTitles}
               size="md"
             />
-
             <Select
-              id="University"
+              id="university"
               label="University"
               name="university"
               value={formData.university}
-              onChange={(e) => setFieldValue("university", e.target.value)}
+              onChange={handleChange}
               options={universities}
               size="md"
             />
-
-            <Input
+            <Select
               id="city"
-              name="city"
               label="City"
+              name="city"
               value={formData.city}
-              onChange={handleInputChange}
-              placeholder="Your city"
+              onChange={handleChange}
+              options={cities}
+              size="md"
             />
 
             <Select
@@ -292,7 +328,7 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               label="Tags"
               name="tags"
               value={formData.tags}
-              onChange={handleSelectChange}
+              onChange={handleTagsChange}
               options={tags}
               multiple
               size="md"
@@ -300,13 +336,13 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
           </div>
 
           {/* Phone Number */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Select
-              id="phoneCodes"
-              label="Phone Codes"
-              name="phoneCodes"
+              id="phoneCode"
+              label="Phone Code"
+              name="phoneCode"
               value={formData.phoneCode}
-              onChange={handleSelectChange}
+              onChange={handleChange}
               options={phoneCodes}
               size="md"
             />
@@ -316,35 +352,36 @@ const EditProfileModal = ({ isOpen, onClose }: EditProfileModalProps) => {
               type="tel"
               label="Phone Number"
               value={formData.phoneNumber}
-              onChange={handleInputChange}
+              onChange={handleChange}
               placeholder="Phone number"
             />
-            {userProfile?.role !== "LEARNER" && (
+          </div>
+
+          {/* Hourly Rate - Conditionally rendered */}
+          {userProfile?.role !== "LEARNER" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="hourRate"
                 name="hourRate"
                 type="number"
                 label="Price per hour ($)"
                 value={formData.hourRate ?? ""}
-                onChange={handleInputChange}
+                onChange={handleChange}
                 placeholder="e.g., 50"
               />
-            )}
-          </div>
+            </div>
+          )}
 
           {/* Actions */}
-          <div className="flex gap-4 pt-4">
-            <Button
-              type="button"
-              onClick={onClose}
-              className="bg-gray-300 text-gray-700 hover:bg-gray-400"
-            >
+          <div className="flex items-center justify-between gap-7 pt-4">
+            <Button type="button" onClick={onClose} color="secondary" size="md">
               Cancel
             </Button>
             <Button
               type="submit"
               isLoading={isLoading}
-              className="bg-[var(--primary)] hover:bg-[var(--secondary)]"
+              color="primary"
+              size="md"
             >
               Save Changes
             </Button>
