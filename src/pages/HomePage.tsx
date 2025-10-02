@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import Header from "../layouts/Header";
-import Sidebar from "../layouts/Sidebar";
+import Header from "../components/Header";
+import Sidebar from "../components/Sidebar";
 import Alert from "../components/Alert";
 import authService from "../services/authService";
 import { useNavigate } from "react-router-dom";

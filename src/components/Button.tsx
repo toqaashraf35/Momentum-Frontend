@@ -6,7 +6,7 @@ type ButtonProps = {
   isLoading?: boolean;
   disabled?: boolean;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  color?: "primary" | "secondary" | "red" | "green" | "yellow" | "white";
+  color?: "primary" | "secondary" | "red" | "green" | "yellow";
   size?: "xsm" | "sm" | "md" | "lg" | "xl";
   children: React.ReactNode;
   icon?: React.ReactNode;
@@ -30,7 +30,6 @@ export default function Button({
     green: "bg-green-500 hover:bg-green-600 text-white focus:ring-green-500",
     yellow:
       "bg-yellow-500 hover:bg-yellow-600 text-white focus:ring-yellow-500",
-      white: "bg-white border border-[var(--dim)] text-[var(--secondary)] focus:ring-white"
   };
 
   const sizeClasses: Record<typeof size, string> = {

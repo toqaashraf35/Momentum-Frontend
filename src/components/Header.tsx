@@ -14,11 +14,11 @@ import {
   Menu,
 } from "lucide-react";
 import { useFetch } from "../hooks/useFetch";
-import Avatar from "../components/Avatar";
+import Avatar from "./Avatar";
 import profileService from "../services/profileService";
 
 type HeaderProps = {
-  onLogoutClick: () => void; 
+  onLogoutClick: () => void;
 };
 
 const Header = ({ onLogoutClick }: HeaderProps) => {
@@ -128,7 +128,7 @@ const Header = ({ onLogoutClick }: HeaderProps) => {
                   <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                 ) : (
                   <Avatar
-                    src={userProfile?.avatarURL}
+                    src={userProfile?.avatarUrl}
                     name={userProfile?.name}
                     size="sm"
                   />
@@ -148,7 +148,7 @@ const Header = ({ onLogoutClick }: HeaderProps) => {
                 <div className="absolute right-0 top-full mt-2 w-48 md:w-72 bg-white rounded-xl shadow-lg border border-[var(--border)] py-4 z-50">
                   <div className="flex items-center gap-3 px-4 md:px-5 pb-3">
                     <Avatar
-                      src={userProfile?.avatarURL}
+                      src={userProfile?.avatarUrl}
                       name={userProfile?.name}
                       size="md"
                     />
@@ -182,7 +182,7 @@ const Header = ({ onLogoutClick }: HeaderProps) => {
 
                   <button
                     className="flex items-center gap-3 w-full px-4 md:px-5 py-2 text-sm hover:bg-gray-50 hover:text-[var(--primary)]"
-                    onClick={onLogoutClick} 
+                    onClick={onLogoutClick}
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

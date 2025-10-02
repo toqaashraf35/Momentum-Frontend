@@ -8,7 +8,7 @@ interface TableProps<T> {
   data: T[];
   columns: Column<T>[];
   maxHeight?: string;
-  onRowClick?: (row: T) => void | Promise<void>; // ✅ أضفناها هنا
+  onRowClick?: (row: T) => void | Promise<void>; 
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -16,7 +16,7 @@ export default function Table<T extends Record<string, any>>({
   data,
   columns,
   maxHeight = "400px",
-  onRowClick, // ✅ هنا خدناها
+  onRowClick, 
 }: TableProps<T>) {
   return (
     <div className="w-full bg-white rounded-lg shadow">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import authService from "../services/authService";
-import Header from "../layouts/Header";
+import Header from "../components/Header";
 import Alert from "../components/Alert";
 import BookSessionForm from "../components/BookSessionForm";
 
@@ -21,7 +21,7 @@ export default function BookSessionPage() {
           <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         </div>
         <div>
-            <BookSessionForm />
+          <BookSessionForm />
         </div>
         {/* Logout Alert */}
         {isLogoutAlertOpen && (

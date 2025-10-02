@@ -1,9 +1,9 @@
 import { Send, MoreVertical, Trash2, Copy } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useFetch } from "../hooks/useFetch";
-import Input from "../components/Input";
-import Avatar from "../components/Avatar";
-import Title from "../components/Title";
+import Input from "./Input";
+import Avatar from "./Avatar";
+import Title from "./Title";
 import profileService from "../services/profileService";
 
 type ChatProps = {
@@ -36,7 +36,7 @@ export default function Chat({ mode = "chatbot" }: ChatProps) {
       id: Date.now(),
       sender: userProfile.name || "You",
       profilePicture:
-        userProfile.avatarURL ||
+        userProfile.avatarUrl ||
         "https://via.placeholder.com/150/cccccc/000000?text=User",
       text: message,
       time: new Date().toLocaleTimeString([], {
@@ -105,7 +105,7 @@ export default function Chat({ mode = "chatbot" }: ChatProps) {
               src={
                 mode === "chatbot"
                   ? "https://img.freepik.com/free-vector/chatbot-chat-message-vectorart_78370-4104.jpg"
-                  : userProfile?.avatarURL
+                  : userProfile?.avatarUrl
               }
               name={userProfile?.name}
               size="sm"

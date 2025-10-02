@@ -1,6 +1,6 @@
 import { useState } from "react";
-import Header from "../layouts/Header";
-import Chat from "../layouts/Chat";
+import Header from "../components/Header";
+import Chat from "../components/Chat";
 import Alert from "../components/Alert";
 import authService from "../services/authService";
 import { useNavigate } from "react-router-dom";
