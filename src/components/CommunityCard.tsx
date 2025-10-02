@@ -11,7 +11,7 @@ import {
   Eye
 } from 'lucide-react';
 import type { CommunityResponse } from '../types/community';
-import { formatMemberCount, formatPostCount } from '../utils/communityUtils';
+import { formatMemberCount } from '../utils/communityUtils';
 
 export interface CommunityCardProps {
   community: CommunityResponse;
@@ -119,10 +119,6 @@ const CommunityCard: React.FC<CommunityCardProps> = ({
           <div className="flex items-center gap-1">
             <Users size={16} className="text-[var(--primary)]" />
             <span>{formatMemberCount(community.memberCount)} members</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <MessageSquare size={16} className="text-[var(--primary)]" />
-            <span>{formatPostCount(community.postCount)} posts</span>
           </div>
         </div>
 

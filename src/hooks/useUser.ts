@@ -24,11 +24,7 @@ export const useUser = () => {
   }, []);
 
   useEffect(() => {
-    let isMounted = true;
     fetchUserProfile().catch(() => {});
-    return () => {
-      isMounted = false;
-    };
   }, [fetchUserProfile]);
 
   return {

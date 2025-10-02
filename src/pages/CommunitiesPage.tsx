@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Users, Plus } from 'lucide-react';
 import Header from '../layouts/Header';
 import Sidebar from '../layouts/Sidebar';
@@ -16,7 +17,7 @@ const CommunitiesPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [loadingStates, setLoadingStates] = useState<{ [key: number]: boolean }>({});
   const [memberCountUpdates, setMemberCountUpdates] = useState<{ [key: number]: number }>({});
-  const [sortBy, setSortBy] = useState<'name' | 'members' | 'posts'>('name');
+  const [sortBy, setSortBy] = useState<'name' | 'members'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -36,6 +37,9 @@ const CommunitiesPage: React.FC = () => {
     community: null,
     loading: false
   });
+  
+  const navigate = useNavigate();
+  
   const { communities, loading, error, refetch } = useCommunities();
   const { myCommunities, refetch: refetchMyCommunities } = useMyCommunities();
   const { joinedCommunities, refetch: refetchJoinedCommunities } = useJoinedCommunities();
@@ -189,9 +193,8 @@ const CommunitiesPage: React.FC = () => {
     });
   };
 
-  const handleView = (_id: number) => {
-    // Navigate to community detail page
-    // You can implement navigation here, e.g., using React Router
+  const handleView = (id: number) => {
+    navigate(`/community/${id}/posts`);
   };
 
   // Handle create community
@@ -295,10 +298,6 @@ const CommunitiesPage: React.FC = () => {
         case 'members':
           aValue = aUpdatedCount;
           bValue = bUpdatedCount;
-          break;
-        case 'posts':
-          aValue = a.postCount;
-          bValue = b.postCount;
           break;
         default:
           aValue = a.name.toLowerCase();
@@ -504,7 +503,7 @@ const CommunitiesPage: React.FC = () => {
                   value={`${sortBy}-${sortDirection}`}
                   onChange={(e) => {
                     const [field, direction] = e.target.value.split('-');
-                    setSortBy(field as 'name' | 'members' | 'posts');
+                    setSortBy(field as 'name' | 'members');
                     setSortDirection(direction as 'asc' | 'desc');
                   }}
                   className="px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
@@ -513,8 +512,6 @@ const CommunitiesPage: React.FC = () => {
                   <option value="name-desc">Sort by Name (Z-A)</option>
                   <option value="members-desc">Sort by Members (High to Low)</option>
                   <option value="members-asc">Sort by Members (Low to High)</option>
-                  <option value="posts-desc">Sort by Posts (High to Low)</option>
-                  <option value="posts-asc">Sort by Posts (Low to High)</option>
                 </select>
               </div>
 

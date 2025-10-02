@@ -6,6 +6,8 @@ import ProfilePage from "./pages/MyProfilePage";
 // import SignupAsMentorPage from "./pages/SignupAsMentorPage";
 import ChatbotPage from "./pages/ChatbotPage";
 import CommunitiesPage from "./pages/CommunitiesPage";
+import { CommunityPostsPage } from "./pages/CommunityPostsPage";
+import { PostDetailPage } from "./pages/PostDetailPage";
 
 function App() {
   return (
@@ -19,6 +21,8 @@ function App() {
         <Route path="/profile" element={<ProfilePage />}/>
         <Route path="/chatbot" element={<ChatbotPage />} />
         <Route path="/communities" element={<CommunitiesPage />} />
+        <Route path="/community/:communityId/posts" element={<CommunityPostsPage />} />
+        <Route path="/post/:postId" element={<PostDetailPage />} />
       </Routes>
     </Router>
   );

@@ -11,21 +11,9 @@ export const formatMemberCount = (count: number): string => {
   }
 };
 
-// Format post count for display
-export const formatPostCount = (count: number): string => {
-  if (count < 1000) {
-    return count.toString();
-  } else if (count < 1000000) {
-    return `${(count / 1000).toFixed(1)}k`;
-  } else {
-    return `${(count / 1000000).toFixed(1)}M`;
-  }
-};
-
 // Get community display info
 export const getCommunityDisplayInfo = (community: CommunityResponse) => ({
   memberCountFormatted: formatMemberCount(community.memberCount),
-  postCountFormatted: formatPostCount(community.postCount),
   hasImage: !!community.imageUrl,
   tagCount: community.tags ? community.tags.length : 0
 });
@@ -86,10 +74,6 @@ export const sortCommunities = (
         aValue = a.memberCount;
         bValue = b.memberCount;
         break;
-      case 'postCount':
-        aValue = a.postCount;
-        bValue = b.postCount;
-        break;
       default:
         return 0;
     }
@@ -128,7 +112,6 @@ export const getCommunityStats = (community: CommunityResponse) => ({
   id: community.id,
   name: community.name,
   memberCount: community.memberCount,
-  postCount: community.postCount,
   tagCount: community.tags ? community.tags.length : 0,
   hasDescription: !!community.description,
   hasImage: !!community.imageUrl

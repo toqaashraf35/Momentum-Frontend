@@ -6,11 +6,24 @@ const api = axios.create({
   baseURL: API_BASE,
 });
 
+// Utility function to check if user is authenticated
+export const isAuthenticated = (): boolean => {
+  const token = localStorage.getItem("token");
+  return !!token;
+};
+
+// Utility function to get current token
+export const getCurrentToken = (): string | null => {
+  return localStorage.getItem("token");
+};
+
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem("token");
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+      // Ensure headers object exists and set Authorization
+      config.headers = config.headers || {};
+      config.headers['Authorization'] = `Bearer ${token}`;
     }
     return config;
   },

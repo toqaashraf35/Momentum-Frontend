@@ -22,7 +22,6 @@ export interface CommunityResponse {
   ownerName: string;
   tags: string[];
   memberCount: number;
-  postCount: number;
 }
 
 export interface CommunitySearchParams {
