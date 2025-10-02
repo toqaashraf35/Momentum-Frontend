@@ -192,6 +192,14 @@ const Sidebar = ({
             color="primary"
             size="md"
           />
+
+          <Button
+            children="Add Availability"
+            type="button"
+            onClick={() => navigate("/availability")}
+            color="primary"
+            size="md"
+          />
         </div>
       </aside>
     </>
