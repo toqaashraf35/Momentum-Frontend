@@ -9,9 +9,11 @@ import { Users, Users2, FileUser, GraduationCap } from "lucide-react";
 import authService from "../services/authService";
 import Alert from "../components/Alert";
 import { useState } from "react";
+import MentorsLoading from "../components/MentorsSkeleton";
+import MentorsError from "../components/Error";
 
 export default function AdminDashboardPage() {
-  const { data: stats, error } = useFetch<StatisticsResponse>(
+  const { data: stats, error, loading, refetch } = useFetch<StatisticsResponse>(
     statService.getStatistics
   );
   const navigate = useNavigate();
@@ -23,12 +25,15 @@ export default function AdminDashboardPage() {
     navigate("/login");
   };
 
-  if (error)
-    return (
-      <div className="flex items-center justify-center h-screen text-red-500">
-        {error}
-      </div>
-    );
+  const renderContent = () => {
+      if (loading) {
+        return <MentorsLoading />;
+      }
+  
+      if (error) {
+        return <MentorsError error={error} onRetry={refetch} />;
+      }
+    }
 
   if (!stats) return null;
 
@@ -48,6 +53,7 @@ export default function AdminDashboardPage() {
             subtitle="Overview of platform statistics, growth, and applications"
           />
         </header>
+        {renderContent()}
 
         {/* Stat Cards */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 p-4">

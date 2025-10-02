@@ -10,6 +10,7 @@ import AnotherProfilePage from "./pages/AnotherProfilePage";
 import ReviewApplicationPage from "./pages/ReviewApplicationPage";
 import AvailabilityPage from "./pages/AvailabilityPage";
 import BookSessionPage from "./pages/BookSessionPage";
+import NotificationsPage from "./pages/NotificationsPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         />
         <Route path="/availability" element={<AvailabilityPage />} />
         <Route path="/Booking/:profileId" element={<BookSessionPage />} />
+        <Route path="/notifications" element={<NotificationsPage />} />
       </Routes>
     </Router>
   );
