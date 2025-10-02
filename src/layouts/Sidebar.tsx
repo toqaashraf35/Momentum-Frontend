@@ -161,7 +161,7 @@ const Sidebar = ({
             {userProfile?.hourRate && (
               <div className="flex flex-col items-center bg-green-100 p-4 rounded-lg">
                 <p className="text-sm text-[var(--main)] font-semibold">
-                  Session rate
+                  Hourly rate
                 </p>
                 <div className="flex items-center">
                   <DollarSign size={14} className="mr-2 text-green-500" />
@@ -189,6 +189,14 @@ const Sidebar = ({
             children="Complete your Profile"
             type="button"
             onClick={() => navigate("/profile")}
+            color="primary"
+            size="md"
+          />
+
+          <Button
+            children="Add Availability"
+            type="button"
+            onClick={() => navigate("/availability")}
             color="primary"
             size="md"
           />

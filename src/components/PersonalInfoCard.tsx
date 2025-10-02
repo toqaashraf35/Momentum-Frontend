@@ -127,7 +127,7 @@ const PersonalInfoCard = ({ userId }: PersonalInfoCardProps) => {
               <div>
                 <p className="text-sm font-medium text-gray-700">Price</p>
                 <p className="text-gray-600">
-                  ${userProfile.hourRate.toFixed(2)}/session
+                  ${userProfile.hourRate.toFixed(2)}/hour
                 </p>
               </div>
             </div>
