@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import Alert from "../components/Alert";
-import Header from "../layouts/Header";
+import Header from "../components/Header";
 import PersonalInfoCard from "../components/PersonalInfoCard";
 import ProfileCard from "../components/ProfileCard";
 import authService from "../services/authService";

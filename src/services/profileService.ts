@@ -3,47 +3,49 @@ import authService from "./authService";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8081/api";
 
+export interface UserProfileRequestDto {
+  name: string;
+  username: string;
+  email: string;
+  country: string;
+  bio?: string;
+  phoneCode?: string;
+  phoneNumber?: string;
+  city?: string;
+  university?: string;
+  tags?: string[];
+  githubLink?: string;
+  linkedinLink?: string;
+  avatarURL?: string;
+  jobTitle?: string;
+  hourRate?: number;
+}
+
 export interface UserProfileResponseDto {
   id: number;
   name: string;
   username: string;
-  role: string;
-  country: string;
   email: string;
+  country: string;
+  role: string;
   bio?: string;
-  phoneNumber?: string;
   phoneCode?: string;
-  jobTitle?: string;
-  university?: string;
-  tags?: string[];
-  followersCount?: number;
-  followingCount?: number;
+  phoneNumber?: string;
   city?: string;
+  university?: string;
+  tags: string[];
+  githubLink?: string;
+  linkedinLink?: string;
+  avatarUrl?: string;
+  jobTitle?: string;
+  followingCount: number;
+  followersCount: number;
   rating?: number;
   hourRate?: number;
-  linkedinLink?: string;
-  githubLink?: string;
-  avatarURL?: string;
 }
-
-export interface UpdateProfileRequest {
-  name?: string | null;
-  username?: string | null;
-  email?: string | null;
-  country?: string | null;
-  bio?: string | null;
-  phoneNumber?: string | null;
-  phoneCode?: string | null;
-  jobTitle?: string | null;
-  university?: string | null;
-  tags?: string[] | null;
-  city?: string | null;
-  linkedinLink?: string | null;
-  githubLink?: string | null;
-  avatarURL?: string | null;
-  hourRate?: number | null;
+interface ApiError {
+  message: string;
 }
-
 interface PaginatedResponse<T> {
   content: T[];
   totalPages: number;
@@ -101,20 +103,13 @@ const profileService = {
     }
   },
 
-  updateProfile: async (
-    profileData: UpdateProfileRequest
-  ): Promise<UserProfileResponseDto> => {
+  async updateProfile(
+    profileData: UserProfileRequestDto
+  ): Promise<UserProfileResponseDto> {
     try {
-      // Clean the data - remove null/undefined values that might cause issues
-      const cleanedData = Object.fromEntries(
-        Object.entries(profileData).filter(
-          ([_, value]) => value !== undefined && value !== null && value !== ""
-        )
-      );
-
       const response = await axios.patch<UserProfileResponseDto>(
         `${API_BASE}/profile/me`,
-        cleanedData,
+        profileData,
         authService.getAuthHeaders()
       );
       return response.data;
@@ -125,7 +120,7 @@ const profileService = {
         typeof err.response.data === "object" &&
         "message" in err.response.data
       ) {
-        throw new Error((err.response.data as { message: string }).message);
+        throw new Error((err.response.data as ApiError).message);
       } else if (err instanceof Error) {
         throw err;
       } else {
@@ -165,7 +160,7 @@ const profileService = {
       }
     }
   },
-  
+
   getTopRatedMentors: async (): Promise<UserProfileResponseDto[]> => {
     try {
       const response = await axios.get<UserProfileResponseDto[]>(
@@ -300,7 +295,7 @@ const profileService = {
         typeof err.response.data === "object" &&
         "message" in err.response.data
       ) {
-        throw new Error((err.response.data as { message: string }).message);
+        throw new Error((err.response.data as ApiError).message);
       } else if (err instanceof Error) {
         throw err;
       } else {
@@ -323,7 +318,7 @@ const profileService = {
         typeof err.response.data === "object" &&
         "message" in err.response.data
       ) {
-        throw new Error((err.response.data as { message: string }).message);
+        throw new Error((err.response.data as ApiError).message);
       } else if (err instanceof Error) {
         throw err;
       } else {

@@ -72,7 +72,7 @@ const FollowersFollowingModal = ({
                   onClick={() => handleUserClick(user.id)}
                   className="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
                 >
-                  <Avatar src={user.avatarURL} name={user.name} size="md" />
+                  <Avatar src={user.avatarUrl} name={user.name} size="md" />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-[var(--main)] truncate">
                       {user.name}

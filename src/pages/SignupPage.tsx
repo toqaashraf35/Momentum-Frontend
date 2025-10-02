@@ -7,7 +7,7 @@ import Select from "../components/Select";
 import authService from "../services/authService";
 import { validateSignup } from "../utils/validateSignup";
 import { useOptions } from "../hooks/useOptions";
-import OutsideHeader from "../layouts/OutsideHeader";
+import OutsideHeader from "../components/OutsideHeader";
 import Logo from "../assets/Logo.png";
 import Alert from "../components/Alert";
 
@@ -36,6 +36,7 @@ export default function SignupPage() {
     errors,
     isSubmitting,
     handleChange,
+    handleSelectChange, 
     handleSubmit,
     setFieldValue,
     setErrors,
@@ -91,7 +92,7 @@ export default function SignupPage() {
     <>
       <OutsideHeader logo={Logo} />
 
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="bg-white rounded-2xl w-full max-w-3xl p-10">
           <div className="text-center mb-10">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -102,194 +103,189 @@ export default function SignupPage() {
             </p>
           </div>
 
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit(onSubmit);
-              }}
-              className="flex flex-col items-center space-y-6"
-              noValidate
-            >
-              {" "}
-              {/* Name + Username Row */}{" "}
-              <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
-                {" "}
-                <Input
-                  id="name"
-                  name="name"
-                  label="Full Name"
-                  placeholder="Enter your full name"
-                  value={values.name}
-                  onChange={handleChange}
-                  error={errors.name}
-                  disabled={isSubmitting || loading}
-                  size="lg"
-                />{" "}
-                <Input
-                  id="username"
-                  name="username"
-                  label="Username"
-                  placeholder="Choose a username"
-                  value={values.username}
-                  onChange={handleChange}
-                  error={errors.username}
-                  disabled={isSubmitting || loading}
-                  size="lg"
-                />{" "}
-              </div>{" "}
-              {/* Email + Country Row */}{" "}
-              <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
-                {" "}
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  label="Email"
-                  placeholder="Enter your email"
-                  value={values.email}
-                  onChange={handleChange}
-                  error={errors.email}
-                  disabled={isSubmitting || loading}
-                  size="lg"
-                />{" "}
-                <Select
-                  id="Country"
-                  label="Country"
-                  name="country"
-                  value={values.country}
-                  onChange={(e) => setFieldValue("country", e.target.value)}
-                  options={countries}
-                  error={errors.country}
-                  disabled={isSubmitting || loading}
-                />{" "}
-              </div>{" "}
-              {/* Password + Confirm Password Row */}{" "}
-              <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
-                {" "}
-                <Input
-                  id="password"
-                  name="password"
-                  label="Password"
-                  type="password"
-                  placeholder="Create a password"
-                  value={values.password}
-                  onChange={handleChange}
-                  error={errors.password}
-                  disabled={isSubmitting}
-                  size="lg"
-                />{" "}
-                <Input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  label="Confirm Password"
-                  type="password"
-                  placeholder="Confirm your password"
-                  value={values.confirmPassword}
-                  onChange={handleChange}
-                  error={errors.confirmPassword}
-                  disabled={isSubmitting}
-                  size="lg"
-                />{" "}
-              </div>{" "}
-              {/* Mentor-Specific Fields */}{" "}
-              {isMentor && (
-                <>
-                  {" "}
-                  <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
-                    {" "}
-                    <Select
-                      id="JobTitles"
-                      label="Job Title"
-                      name="jobTitle"
-                      value={values.jobTitle}
-                      onChange={(e) =>
-                        setFieldValue("jobTitle", e.target.value)
-                      }
-                      options={jobTitles}
-                      error={errors.jobTitle}
-                      disabled={isSubmitting || loading}
-                    />{" "}
-                    <Select
-                      id="Tags"
-                      label="Tags"
-                      name="tags"
-                      value={values.tags}
-                      onChange={(e) => setFieldValue("tags", e.target.value)}
-                      options={tags}
-                      multiple
-                      error={errors.tags}
-                      disabled={isSubmitting || loading}
-                    />{" "}
-                  </div>{" "}
-                  <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
-                    {" "}
-                    <Input
-                      id="hourRate"
-                      name="hourRate"
-                      type="number"
-                      label="Hourly Rate"
-                      placeholder="Enter your hourly rate"
-                      value={values.hourRate ?? ""}
-                      onChange={handleChange}
-                      error={errors.hourRate}
-                      disabled={isSubmitting}
-                      size="lg"
-                    />{" "}
-                    <Input
-                      id="cvFile"
-                      name="cvFile"
-                      type="file"
-                      label="Upload CV"
-                      onChange={(e) =>
-                        setFieldValue("cvFile", e.target.files?.[0] || null)
-                      }
-                      error={errors.cvFile}
-                      size="lg"
-                    />{" "}
-                  </div>{" "}
-                </>
-              )}{" "}
-              {/* Submit Button */}{" "}
-              <Button
-                type="submit"
-                isLoading={isSubmitting}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              handleSubmit(onSubmit);
+            }}
+            className="flex flex-col items-center space-y-6"
+            noValidate
+          >
+            {/* Name + Username Row */}
+            <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
+              <Input
+                id="name"
+                name="name"
+                label="Full Name"
+                placeholder="Enter your full name"
+                value={values.name}
+                onChange={handleChange}
+                error={errors.name}
                 disabled={isSubmitting || loading}
-                color="primary"
-                size="xl"
-              >
-                {" "}
-                Sign up{" "}
-              </Button>{" "}
-              {/* Role Toggle Button */}{" "}
-              <Button
-                type="button"
-                children={isMentor ? "Sign up as Learner" : "Sign up as Mentor"}
+                size="lg"
+              />
+              <Input
+                id="username"
+                name="username"
+                label="Username"
+                placeholder="Choose a username"
+                value={values.username}
+                onChange={handleChange}
+                error={errors.username}
+                disabled={isSubmitting || loading}
+                size="lg"
+              />
+            </div>
+
+            {/* Email + Country Row */}
+            <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
+              <Input
+                id="email"
+                name="email"
+                type="email"
+                label="Email"
+                placeholder="Enter your email"
+                value={values.email}
+                onChange={handleChange}
+                error={errors.email}
+                disabled={isSubmitting || loading}
+                size="lg"
+              />
+              <Select
+                id="Country"
+                label="Country"
+                name="country"
+                value={values.country}
+                onChange={(value) => handleSelectChange("country", value)} // استخدمي handleSelectChange هنا
+                options={countries}
+                error={errors.country}
+                disabled={isSubmitting || loading}
+              />
+            </div>
+
+            {/* Password + Confirm Password Row */}
+            <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
+              <Input
+                id="password"
+                name="password"
+                label="Password"
+                type="password"
+                placeholder="Create a password"
+                value={values.password}
+                onChange={handleChange}
+                error={errors.password}
                 disabled={isSubmitting}
-                onClick={() => {
-                  setIsMentor((prev) => !prev);
-                  setFieldValue("role", isMentor ? "LEARNER" : "MENTOR");
-                }}
-                color="primary"
-                size="xl"
-              />{" "}
-              {/* Error Display */}{" "}
-              {errors.submit && (
-                <p className="text-red-500 text-sm text-center mt-4">
-                  {" "}
-                  {errors.submit}{" "}
-                </p>
-              )}{" "}
-              <div className="text-center text-[var(--dim)] text-sm mt-6">
-                {" "}
-                Already have an account?{" "}
-                <a
-                  href="/login"
-                  className="text-[var(--primary)] font-semibold hover:text-[var(--secondary)] transition-colors duration-200"
-                >
-                  {" "}
-                  Login{" "}
-                </a>{" "}
-              </div>{" "}
+                size="lg"
+              />
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm your password"
+                value={values.confirmPassword}
+                onChange={handleChange}
+                error={errors.confirmPassword}
+                disabled={isSubmitting}
+                size="lg"
+              />
+            </div>
+
+            {/* Mentor-Specific Fields */}
+            {isMentor && (
+              <>
+                <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
+                  <Select
+                    id="JobTitles"
+                    label="Job Title"
+                    name="jobTitle"
+                    value={values.jobTitle}
+                    onChange={(value) => handleSelectChange("jobTitle", value)} 
+                    options={jobTitles}
+                    error={errors.jobTitle}
+                    disabled={isSubmitting || loading}
+                  />
+                  <Select
+                    id="Tags"
+                    label="Tags"
+                    name="tags"
+                    value={values.tags}
+                    onChange={(value) => handleSelectChange("tags", value)} 
+                    options={tags}
+                    multiple
+                    error={errors.tags}
+                    disabled={isSubmitting || loading}
+                  />
+                </div>
+
+                <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
+                  <Input
+                    id="hourRate"
+                    name="hourRate"
+                    type="number"
+                    label="Hourly Rate"
+                    placeholder="Enter your hourly rate"
+                    value={values.hourRate ?? ""}
+                    onChange={handleChange}
+                    error={errors.hourRate}
+                    disabled={isSubmitting}
+                    size="lg"
+                  />
+                  <Input
+                    id="cvFile"
+                    name="cvFile"
+                    type="file"
+                    label="Upload CV"
+                    onChange={(e) =>
+                      setFieldValue("cvFile", e.target.files?.[0] || undefined)
+                    }
+                    error={errors.cvFile}
+                    size="lg"
+                  />
+                </div>
+              </>
+            )}
+
+            {/* Submit Button */}
+            <Button
+              type="submit"
+              isLoading={isSubmitting}
+              disabled={isSubmitting || loading}
+              color="primary"
+              size="xl"
+            >
+              Sign up
+            </Button>
+
+            {/* Role Toggle Button */}
+            <Button
+              type="button"
+              children={isMentor ? "Sign up as Learner" : "Sign up as Mentor"}
+              disabled={isSubmitting}
+              onClick={() => {
+                setIsMentor((prev) => !prev);
+                setFieldValue("role", isMentor ? "LEARNER" : "MENTOR");
+              }}
+              color="primary"
+              size="xl"
+            />
+
+            {/* Error Display */}
+            {errors.submit && (
+              <p className="text-red-500 text-sm text-center mt-4">
+                {errors.submit}
+              </p>
+            )}
+
+            <div className="text-center text-[var(--dim)] text-sm mt-6">
+              Already have an account?{" "}
+              <a
+                href="/login"
+                className="text-[var(--primary)] font-semibold hover:text-[var(--secondary)] transition-colors duration-200"
+              >
+                Login
+              </a>
+            </div>
           </form>
         </div>
       </div>

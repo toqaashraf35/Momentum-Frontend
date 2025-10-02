@@ -4,6 +4,7 @@ import axios from "axios";
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8081/api";
 
 export interface LoginResponse {
+  role: string;
   id: number;
   name: string;
   username: string;

@@ -2,8 +2,8 @@ import { useNavigate } from "react-router-dom";
 import StatCard from "../components/StatCard";
 import Title from "../components/Title";
 import { useFetch } from "../hooks/useFetch";
-import ApplicationsTable from "../layouts/ApplicationsTable";
-import SideMenu from "../layouts/SideMenu";
+import ApplicationsTable from "../components/ApplicationsTable";
+import SideMenu from "../components/SideMenu";
 import statService, { type StatisticsResponse } from "../services/statService";
 import { Users, Users2, FileUser, GraduationCap } from "lucide-react";
 import authService from "../services/authService";
@@ -11,14 +11,12 @@ import Alert from "../components/Alert";
 import { useState } from "react";
 
 export default function AdminDashboardPage() {
-  const {
-    data: stats,
-    error,
-  } = useFetch<StatisticsResponse>(statService.getStatistics);
- const navigate = useNavigate();
-   const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
- 
-  
+  const { data: stats, error } = useFetch<StatisticsResponse>(
+    statService.getStatistics
+  );
+  const navigate = useNavigate();
+  const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
+
   const handleLogout = () => {
     setIsLogoutAlertOpen(false);
     authService.logout();
@@ -82,7 +80,7 @@ export default function AdminDashboardPage() {
         {/* Applications Table */}
         <section className="p-4 ">
           <h2 className="text-lg font-semibold mb-2 text-gray-700">
-             Applications
+            Applications
           </h2>
           <div className="h-full">
             <ApplicationsTable />
@@ -90,16 +88,16 @@ export default function AdminDashboardPage() {
         </section>
       </main>
       {/* Logout Alert */}
-            {isLogoutAlertOpen && (
-              <Alert
-                title="Confirm Logout"
-                description="Are you sure you want to log out of your account?"
-                confirmText="Logout"
-                cancelText="Cancel"
-                onCancel={() => setIsLogoutAlertOpen(false)}
-                onConfirm={handleLogout}
-              />
-            )}
+      {isLogoutAlertOpen && (
+        <Alert
+          title="Confirm Logout"
+          description="Are you sure you want to log out of your account?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          onCancel={() => setIsLogoutAlertOpen(false)}
+          onConfirm={handleLogout}
+        />
+      )}
     </div>
   );
 }

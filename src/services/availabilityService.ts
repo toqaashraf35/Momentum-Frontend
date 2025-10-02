@@ -24,6 +24,17 @@ export interface AvailabilityResponseDTO {
   endTime: string;
 }
 
+export interface TimeSlotDTO {
+  startTime: string; 
+  endTime: string;
+  available: boolean;
+}
+
+export interface MentorAvailabilityDTO {
+  date: string; 
+  availableSlots: TimeSlotDTO[];
+}
+
 const AvailabilityService = {
   async addAvailability(
     availabilityData: AvailabilityRequestDTO
@@ -52,11 +63,11 @@ const AvailabilityService = {
   },
 
   // Add this method to the AvailabilityService class
-  async getAvailabilities(
+  async getMentorAvailability(
     mentorId: number
-  ): Promise<AvailabilityResponseDTO[]> {
+  ): Promise<MentorAvailabilityDTO[]> {
     try {
-      const response = await axios.get<AvailabilityResponseDTO[]>(
+      const response = await axios.get<MentorAvailabilityDTO[]>(
         `${API_BASE}/availability/${mentorId}`,
         authService.getAuthHeaders()
       );

@@ -1,4 +1,3 @@
-// pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -7,7 +6,7 @@ import Button from "../components/Button";
 import { useForm } from "../hooks/useForm";
 import authService from "../services/authService";
 import { validateLogin } from "../utils/validateLogin";
-import OutsideHeader from "../layouts/OutsideHeader";
+import OutsideHeader from "../components/OutsideHeader";
 import Logo from "../assets/Logo.png";
 
 export default function Login() {
@@ -36,11 +35,9 @@ export default function Login() {
     }
 
     try {
-      await authService.login(values.email, values.password);
-      if (
-        values.email === "danielsameh21@gmail.com" &&
-        values.password === "12345678"
-      ) {
+      const userData = await authService.login(values.email, values.password);
+      
+      if (userData.role === "ADMIN") {
         navigate("/admin/dashboard");
       } else {
         navigate("/");
@@ -93,7 +90,7 @@ export default function Login() {
               size="lg"
             />
 
-            <div className="relative">
+            <div className="relative w-full">
               <Input
                 id="password"
                 name="password"
@@ -109,7 +106,7 @@ export default function Login() {
               />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 top-5 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 top-8 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isSubmitting}
               >
@@ -138,29 +135,6 @@ export default function Login() {
                 {errors.submit}
               </div>
             )}
-
-            {/* Divider */}
-            <div className="flex items-centermy-6">
-              <div className="flex-grow border-t border-[var(--border)]"></div>
-              <span className="flex-shrink mx-4 text-[var(--dim)] text-sm">
-                Or
-              </span>
-              <div className="flex-grow border-t border-[var(--border)]"></div>
-            </div>
-
-            {/* Google Login */}
-            <button
-              type="button"
-              className="w-full py-3 flex items-center justify-center gap-2 bg-white text-gray-700 rounded-xl font-semibold border border-[var(--border)] hover:bg-[var(--bg)] transform hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
-              disabled={isSubmitting}
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google logo"
-                className="w-5 h-5"
-              />
-              Sign in with Google
-            </button>
 
             {/* Footer */}
             <div className="text-center text-[var(--dim)] text-sm mt-6">

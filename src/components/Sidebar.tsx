@@ -1,5 +1,5 @@
 import { useFetch } from "../hooks/useFetch";
-import Button from "../components/Button";
+import Button from "./Button";
 import { useNavigate } from "react-router-dom";
 import {
   MapPin,
@@ -9,7 +9,7 @@ import {
   User as UserIcon,
   X,
 } from "lucide-react";
-import Avatar from "../components/Avatar"; // Import the Avatar component
+import Avatar from "./Avatar"; // Import the Avatar component
 import profileService from "../services/profileService";
 
 const Sidebar = ({
@@ -83,7 +83,7 @@ const Sidebar = ({
           {/* Avatar Section */}
           <div className="flex flex-col items-center mb-6">
             <Avatar
-              src={userProfile?.avatarURL}
+              src={userProfile?.avatarUrl}
               name={userProfile?.name}
               size="lg"
             />
@@ -185,21 +185,24 @@ const Sidebar = ({
               ></div>
             </div>
           </div>
-          <Button
-            children="Complete your Profile"
-            type="button"
-            onClick={() => navigate("/profile")}
-            color="primary"
-            size="md"
-          />
-
-          <Button
-            children="Add Availability"
-            type="button"
-            onClick={() => navigate("/availability")}
-            color="primary"
-            size="md"
-          />
+          <div className="flex flex-col items-center justify-between gap-5">
+            <Button
+              children="Complete your Profile"
+              type="button"
+              onClick={() => navigate("/profile")}
+              color="primary"
+              size="md"
+            />
+            {userProfile?.role === "MENTOR" && (
+              <Button
+                children="Add Availability"
+                type="button"
+                onClick={() => navigate("/availability")}
+                color="primary"
+                size="md"
+              />
+            )}
+          </div>
         </div>
       </aside>
     </>
