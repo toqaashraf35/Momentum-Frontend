@@ -5,7 +5,9 @@ import { PostCard } from '../components/PostCard';
 import { CommentList } from '../components/CommentList';
 import { AddCommentForm } from '../components/AddCommentForm';
 import { usePost } from '../hooks/usePost';
-import Header from '../layouts/Header';
+import Header from '../components/Header';
+import Alert from '../components/Alert';
+import authService from '../services/authService';
 
 export const PostDetailPage: React.FC = () => {
   const { postId } = useParams<{ postId: string }>();
@@ -13,6 +15,7 @@ export const PostDetailPage: React.FC = () => {
   const { post, loading, error, refetch } = usePost(Number(postId));
 
   const [commentRefreshTrigger, setCommentRefreshTrigger] = useState(0);
+  const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
 
   const handleCommentAdded = () => {
     setCommentRefreshTrigger(prev => prev + 1);
@@ -24,10 +27,16 @@ export const PostDetailPage: React.FC = () => {
     refetch(); // Refresh post to update comment count
   };
 
+  const handleLogout = () => {
+    setIsLogoutAlertOpen(false);
+    authService.logout();
+    navigate("/login");
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="flex items-center justify-center py-12">
           <Loader className="w-8 h-8 animate-spin text-blue-600" />
           <span className="ml-3 text-gray-600">Loading post...</span>
@@ -39,7 +48,7 @@ export const PostDetailPage: React.FC = () => {
   if (error || !post) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="max-w-4xl mx-auto px-4 py-8">
           <div className="text-center py-12">
             <p className="text-red-600 mb-4">{error || 'Post not found'}</p>
@@ -57,7 +66,7 @@ export const PostDetailPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header />
+      <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
       
       <div className="max-w-4xl mx-auto px-4 py-8">
         {/* Back Button */}
@@ -92,6 +101,18 @@ export const PostDetailPage: React.FC = () => {
           onDeleteComment={handleCommentDeleted}
         />
       </div>
+
+      {/* Logout Alert */}
+      {isLogoutAlertOpen && (
+        <Alert
+          title="Confirm Logout"
+          description="Are you sure you want to log out of your account?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          onCancel={() => setIsLogoutAlertOpen(false)}
+          onConfirm={handleLogout}
+        />
+      )}
     </div>
   );
 };

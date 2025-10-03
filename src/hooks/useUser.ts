@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  profileService,
+import profileService, {
   type UserProfileResponseDto,
 } from "../services/profileService";
 

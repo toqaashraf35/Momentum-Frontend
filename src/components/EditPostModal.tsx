@@ -269,14 +269,12 @@ export const EditPostModal: React.FC<EditPostModalProps> = ({
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || !content.trim() || (isProjectPost && !title.trim())}
-              className="min-w-[120px] px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <>

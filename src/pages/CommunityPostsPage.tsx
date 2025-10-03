@@ -6,9 +6,11 @@ import { CreatePostModal } from '../components/CreatePostModal';
 import { useCommunityPosts } from '../hooks/usePost';
 import { useCommunity, useJoinedCommunities, useCommunityActions } from '../hooks/useCommunity';
 import { useUser } from '../hooks/useUser';
-import Header from '../layouts/Header';
+import Header from '../components/Header';
 import Button from '../components/Button';
 import Avatar from '../components/Avatar';
+import Alert from '../components/Alert';
+import authService from '../services/authService';
 import type { PostResponseDTO, ProjectPostResponseDTO } from '../services/postService';
 
 export const CommunityPostsPage: React.FC = () => {
@@ -25,6 +27,8 @@ export const CommunityPostsPage: React.FC = () => {
   // Check if user is a member of this community
   const isMember = joinedCommunities.some((c: any) => c.id === numericCommunityId);
   const isOwner = community?.ownerName === userProfile?.username;
+
+  const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -43,6 +47,12 @@ export const CommunityPostsPage: React.FC = () => {
     setLoadingMore(true);
     await loadMore();
     setLoadingMore(false);
+  };
+
+  const handleLogout = () => {
+    setIsLogoutAlertOpen(false);
+    authService.logout();
+    navigate("/login");
   };
 
   const handleJoinLeave = async () => {
@@ -64,7 +74,7 @@ export const CommunityPostsPage: React.FC = () => {
   if (communityLoading) {
     return (
       <div className="bg-[var(--bg)] min-h-screen flex flex-col">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="flex-1 flex items-center justify-center pt-20">
           <Loader className="w-8 h-8 animate-spin text-[var(--primary)]" />
         </div>
@@ -75,13 +85,12 @@ export const CommunityPostsPage: React.FC = () => {
   if (communityError || !community) {
     return (
       <div className="bg-[var(--bg)] min-h-screen flex flex-col">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         <div className="flex-1 flex items-center justify-center pt-20">
           <div className="text-center">
             <p className="text-red-600 mb-4">{communityError || 'Community not found'}</p>
             <Button
               onClick={() => navigate('/communities')}
-              className="px-4 py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--secondary)] transition-colors"
             >
               Back to Communities
             </Button>
@@ -93,7 +102,7 @@ export const CommunityPostsPage: React.FC = () => {
 
   return (
     <div className="bg-[var(--bg)] min-h-screen flex flex-col">
-      <Header />
+      <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
       
       <div className="flex-1 flex flex-col pt-20">
         {/* Community Profile Card */}
@@ -145,7 +154,7 @@ export const CommunityPostsPage: React.FC = () => {
 
             <div className="mt-4 md:mt-0 md:ml-4 flex flex-col gap-2 justify-center md:justify-end">
               {!isOwner && (
-                <Button
+                <button
                   onClick={handleJoinLeave}
                   disabled={actionLoading}
                   className={`flex items-center space-x-2 px-3 py-2 md:px-4 md:py-2 rounded-lg transition-colors text-sm font-medium w-full md:w-auto justify-center shadow-md hover:shadow-lg ${
@@ -162,16 +171,16 @@ export const CommunityPostsPage: React.FC = () => {
                       <span>{isMember ? 'Leave Community' : 'Join Community'}</span>
                     </>
                   )}
-                </Button>
+                </button>
               )}
               
-              <Button
+              <button
                 onClick={handleCreatePost}
                 className="flex items-center space-x-2 px-3 py-2 md:px-4 md:py-2 bg-[var(--primary)] text-white rounded-lg hover:bg-[var(--secondary)] transition-colors text-sm font-medium w-full md:w-auto justify-center shadow-md hover:shadow-lg"
               >
                 <Plus size={16} />
                 <span>Create Post</span>
-              </Button>
+              </button>
             </div>
           </div>
         </div>
@@ -212,7 +221,7 @@ export const CommunityPostsPage: React.FC = () => {
 
                 {hasMore && (
                   <div className="text-center py-6">
-                    <Button
+                    <button
                       onClick={handleLoadMore}
                       disabled={loadingMore}
                       className="px-6 py-3 bg-white border-2 border-[var(--primary)] text-[var(--primary)] rounded-lg hover:bg-[var(--primary)] hover:text-white transition-colors disabled:opacity-50"
@@ -225,7 +234,7 @@ export const CommunityPostsPage: React.FC = () => {
                       ) : (
                         'Load More Posts'
                       )}
-                    </Button>
+                    </button>
                   </div>
                 )}
               </div>
@@ -241,6 +250,18 @@ export const CommunityPostsPage: React.FC = () => {
           onClose={() => setIsCreateModalOpen(false)}
           onPostCreated={refetch}
           communityId={numericCommunityId}
+        />
+      )}
+
+      {/* Logout Alert */}
+      {isLogoutAlertOpen && (
+        <Alert
+          title="Confirm Logout"
+          description="Are you sure you want to log out of your account?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          onCancel={() => setIsLogoutAlertOpen(false)}
+          onConfirm={handleLogout}
         />
       )}
     </div>

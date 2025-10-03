@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Users, Plus } from 'lucide-react';
-import Header from '../layouts/Header';
-import Sidebar from '../layouts/Sidebar';
+import Header from '../components/Header';
+import Sidebar from '../components/Sidebar';
 import CommunityCard from '../components/CommunityCard';
 import CreateCommunityModal from '../components/CreateCommunityModal';
 import EditCommunityModal from '../components/EditCommunityModal';
 import DeleteConfirmationModal from '../components/DeleteConfirmationModal';
 import SearchBar from '../components/SearchBar';
+import Alert from '../components/Alert';
 import { useCommunities, useCommunityActions, useMyCommunities, useJoinedCommunities } from '../hooks/useCommunity';
 import { useCommunitySearch } from '../hooks/useCommunitySearch';
 import type { CommunityResponse, CommunityCreateData, CommunityUpdateData } from '../types/community';
 import communityService from '../services/communityService';
+import authService from '../services/authService';
 
 const CommunitiesPage: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,6 +39,7 @@ const CommunitiesPage: React.FC = () => {
     community: null,
     loading: false
   });
+  const [isLogoutAlertOpen, setIsLogoutAlertOpen] = useState(false);
   
   const navigate = useNavigate();
   
@@ -197,6 +200,12 @@ const CommunitiesPage: React.FC = () => {
     navigate(`/community/${id}/posts`);
   };
 
+  const handleLogout = () => {
+    setIsLogoutAlertOpen(false);
+    authService.logout();
+    navigate("/login");
+  };
+
   // Handle create community
   const handleCreateCommunity = async (data: CommunityCreateData, imageFile?: File) => {
     try {
@@ -333,7 +342,7 @@ const CommunitiesPage: React.FC = () => {
         
         {/* Main content */}
         <div className="col-span-2">
-          <Header />
+          <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         </div>
         
         {/* Communities content area */}
@@ -379,7 +388,7 @@ const CommunitiesPage: React.FC = () => {
         
         {/* Main content */}
         <div className="col-span-2">
-          <Header />
+          <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
         </div>
         
         {/* Error content area */}
@@ -430,7 +439,7 @@ const CommunitiesPage: React.FC = () => {
       
       {/* Main content */}
       <div className="col-span-2">
-        <Header />
+        <Header onLogoutClick={() => setIsLogoutAlertOpen(true)} />
       </div>
       
       {/* Communities content area */}
@@ -615,6 +624,18 @@ const CommunitiesPage: React.FC = () => {
         cancelText="Cancel"
         loading={deleteModalState.loading}
       />
+
+      {/* Logout Alert */}
+      {isLogoutAlertOpen && (
+        <Alert
+          title="Confirm Logout"
+          description="Are you sure you want to log out of your account?"
+          confirmText="Logout"
+          cancelText="Cancel"
+          onCancel={() => setIsLogoutAlertOpen(false)}
+          onConfirm={handleLogout}
+        />
+      )}
     </div>
   );
 };

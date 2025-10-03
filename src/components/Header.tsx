@@ -36,12 +36,6 @@ const Header = ({ onLogoutClick }: HeaderProps) => {
     { name: "Chatbot", icon: Bot, link: "/chatbot" },
   ];
 
-
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    window.location.href = "/login";
-  };
-
   const isActiveLink = (link: string) => {
     return location.pathname === link;
   };

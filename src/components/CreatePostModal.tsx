@@ -315,14 +315,12 @@ export const CreatePostModal: React.FC<CreatePostModalProps> = ({
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="px-4 py-2 text-gray-600 bg-black border border-gray-300 hover:bg-gray-800 rounded-lg transition-colors"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading || !content.trim() || (postType === 'PROJECT' && !title.trim())}
-              className="min-w-[120px] px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <>

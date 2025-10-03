@@ -50,9 +50,9 @@ export const AddCommentForm: React.FC<AddCommentFormProps> = ({
       <div className="flex items-start space-x-3">
         {/* User Avatar */}
         <div className="w-10 h-10 rounded-full bg-gradient-to-r from-green-500 to-teal-600 flex items-center justify-center flex-shrink-0">
-          {userProfile?.avatarURL ? (
+          {userProfile?.avatarUrl ? (
             <img
-              src={userProfile.avatarURL}
+              src={userProfile.avatarUrl}
               alt={userProfile.name}
               className="w-full h-full rounded-full object-cover"
             />

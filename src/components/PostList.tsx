@@ -151,7 +151,7 @@ export const PostList: React.FC<PostListProps> = ({
         {/* Load More Button */}
         {hasMore && onLoadMore && (
           <div className="text-center py-6">
-            <Button
+            <button
               onClick={handleLoadMore}
               disabled={loadingMore}
               className="px-6 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 disabled:opacity-50 transition-colors"
@@ -164,7 +164,7 @@ export const PostList: React.FC<PostListProps> = ({
               ) : (
                 'Load More Posts'
               )}
-            </Button>
+            </button>
           </div>
         )}
       </div>
