@@ -1,9 +1,11 @@
-import React from "react";
+// components/BookSessionForm.tsx
+import React, { useState } from "react";
 import { useBookSession } from "../hooks/useBookSession";
 import MentorSidebar from "./BookSessionSidebar";
 import Select from "./Select";
 import Button from "./Button";
 import TimeSelection from "./TimeSelection";
+import Alert from "./Alert";
 
 const BookSessionForm: React.FC = () => {
   const {
@@ -14,15 +16,38 @@ const BookSessionForm: React.FC = () => {
     mentorLoading,
     mentorError,
     availabilitiesLoading,
+    isSubmitting,
+    bookingError,
     handleSelectChange,
     handleTimeSelect,
     handleSubmit,
   } = useBookSession();
 
+  const [showSuccessAlert, setShowSuccessAlert] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    try {
+      await handleSubmit(e);
+      setSuccessMessage(
+        "Booking created successfully! Check your email for the calendar invite."
+      );
+      setShowSuccessAlert(true);
+    } catch (error) {
+      console.error("Booking failed:", error);
+    }
+  };
+
+  const handleCloseSuccessAlert = () => {
+    setShowSuccessAlert(false);
+  };
+
   if (mentorLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="text-lg">Loading...</div>
+        <div className="text-lg">Loading mentor information...</div>
       </div>
     );
   }
@@ -39,7 +64,7 @@ const BookSessionForm: React.FC = () => {
 
   // Create options for date select
   const dateOptions = availableDates.map((date) => ({
-    value: date, // احتفظي بالـ YYYY-MM-DD كـ value
+    value: date,
     label: new Date(date).toLocaleDateString("en-US", {
       weekday: "long",
       year: "numeric",
@@ -49,7 +74,10 @@ const BookSessionForm: React.FC = () => {
   }));
 
   const isSubmitDisabled =
-    !formData.selectedDate || !formData.selectedTime || !formData.sessionTopic;
+    !formData.selectedDate ||
+    !formData.selectedTime ||
+    !formData.sessionTopic ||
+    isSubmitting;
 
   return (
     <div className="min-h-screen bg-gray-50 pt-6">
@@ -64,7 +92,14 @@ const BookSessionForm: React.FC = () => {
                 Book a Session with {mentor.name}
               </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Error Message */}
+              {bookingError && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm">{bookingError}</p>
+                </div>
+              )}
+
+              <form onSubmit={handleFormSubmit} className="space-y-6">
                 {/* Session Topic */}
                 <div>
                   <Select
@@ -92,6 +127,7 @@ const BookSessionForm: React.FC = () => {
                     onChange={handleSelectChange}
                     className="w-full px-4 py-3 border border-gray-300 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
                     required
+                    disabled={availabilitiesLoading}
                   >
                     <option value="">Select a date</option>
                     {dateOptions.map((option) => (
@@ -132,7 +168,9 @@ const BookSessionForm: React.FC = () => {
                     color="primary"
                     size="xl"
                   >
-                    Book Session - ${mentor.hourRate || 0}
+                    {isSubmitting
+                      ? "Booking Session..."
+                      : `Book Session - $${mentor.hourRate || 0}`}
                   </Button>
                   <p className="text-sm text-gray-500 mt-2 text-center">
                     You will be charged ${mentor.hourRate || 0} for this 1-hour
@@ -144,6 +182,17 @@ const BookSessionForm: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Alert */}
+      {showSuccessAlert && (
+        <Alert
+          title="Booking Successful!"
+          description={successMessage}
+          confirmText="OK"
+          onConfirm={handleCloseSuccessAlert}
+          onCancel={handleCloseSuccessAlert}
+        />
+      )}
     </div>
   );
 };

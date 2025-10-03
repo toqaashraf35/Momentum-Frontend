@@ -128,7 +128,10 @@ const Header = ({ onLogoutClick }: HeaderProps) => {
 
           {/* Profile dropdown and Notifications */}
           <div className="flex items-center">
-            <button className="p-2 rounded-full text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)]">
+            <button
+              className="p-2 rounded-full text-[var(--main)] hover:text-[var(--primary)] hover:bg-[var(--light)]"
+              onClick={() => navigate("/notifications")}
+            >
               <Bell className="h-5 w-5" />
             </button>
 
