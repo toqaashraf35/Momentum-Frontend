@@ -36,7 +36,7 @@ const StatCard = ({ title, count, icon, growthRate }: StatCardProps) => {
         ) : (
           <ArrowDownRight className="w-4 h-4 mr-1" />
         )}
-        {isPositive ? `+${growthRate}%` : `${growthRate}%`} from last month
+        {isPositive ? `+${growthRate.toFixed(2)}%` : `${growthRate.toFixed(2)}%`} from last month
       </div>
     </div>
   );

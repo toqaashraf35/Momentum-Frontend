@@ -5,7 +5,7 @@ type ButtonProps = {
   type?: "button" | "submit";
   isLoading?: boolean;
   disabled?: boolean;
-  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
   color?: "primary" | "secondary" | "red" | "green" | "yellow";
   size?: "xsm" | "sm" | "md" | "lg" | "xl";
   children: React.ReactNode;

@@ -6,6 +6,7 @@ import PersonalInfoCard from "../components/PersonalInfoCard";
 import ProfileCard from "../components/ProfileCard";
 import authService from "../services/authService";
 
+
 export default function AnotherProfilePage() {
   const { id } = useParams<{ id: string }>();
   const profileId = id ? parseInt(id, 10) : undefined;
@@ -18,6 +19,8 @@ export default function AnotherProfilePage() {
     authService.logout();
     navigate("/login");
   };
+
+  
 
   return (
     <div className="bg-[var(--bg)] min-h-screen flex flex-col">

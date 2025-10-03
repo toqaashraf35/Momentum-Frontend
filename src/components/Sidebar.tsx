@@ -140,8 +140,8 @@ const Sidebar = ({
             </div>
           )}
           <div className="flex items-center justify-evenly mb-2">
-            {userProfile?.rating ||
-              (userProfile?.rating === 0 && (
+            {userProfile?.rating !== undefined &&
+              userProfile?.rating !== null && (
                 <div className="flex flex-col items-center bg-orange-100 p-4 rounded-lg">
                   <p className="text-sm text-[var(--main)] font-semibold">
                     Rating
@@ -156,7 +156,7 @@ const Sidebar = ({
                     </span>
                   </div>
                 </div>
-              ))}
+              )}
 
             {userProfile?.hourRate && (
               <div className="flex flex-col items-center bg-green-100 p-4 rounded-lg">
