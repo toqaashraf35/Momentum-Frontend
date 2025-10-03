@@ -1,5 +1,6 @@
 import { Edit3, UserPlus, UserRoundCheck, Calendar } from "lucide-react";
 import Button from "./Button";
+import { useNavigate } from "react-router-dom";
 
 interface ProfileActionsProps {
   isOwnProfile: boolean | null;
@@ -9,6 +10,7 @@ interface ProfileActionsProps {
   onEditProfile: () => void;
   onFollowToggle: () => void;
   onUnfollowConfirm: () => void;
+  
 }
 
 const ProfileActions = ({
@@ -20,6 +22,8 @@ const ProfileActions = ({
   onFollowToggle,
   onUnfollowConfirm,
 }: ProfileActionsProps) => {
+    const navigate = useNavigate();
+
   if (isOwnProfile) {
     return (
       <Button
@@ -33,6 +37,11 @@ const ProfileActions = ({
       />
     );
   }
+
+  const handleBookSession = (mentorId: string) => {
+    navigate(`/booking/${mentorId}`);
+    console.log("Book session with mentor:", mentorId);
+  };
 
   return (
     <>
@@ -51,6 +60,7 @@ const ProfileActions = ({
       {userRole === "MENTOR" && (
         <Button
           children="Book session"
+          onClick={() => handleBookSession}
           type="button"
           color="primary"
           size="sm"

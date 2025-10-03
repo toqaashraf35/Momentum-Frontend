@@ -58,9 +58,16 @@ export default function Notifications() {
         return "✅";
       case "MENTOR_APPLICATION_REJECTED":
         return "❌";
+      case "USER_FOLLOWED":
+        return "👥"; 
+      case "SESSION_BOOKED":
+        return "📅"; 
+      case "SESSION_REMINDER_24H":
+        return "⏰"; 
       default:
         return "🔔";
     }
+
   };
 
   const getTabCount = (tab: TabType) => {
@@ -202,13 +209,23 @@ export default function Notifications() {
                           </span>
                         )}
                         {notification.communityId && (
-                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
                             Community
                           </span>
                         )}
                         {notification.applicationId && (
                           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                             Application
+                          </span>
+                        )}
+                        {notification.followerId && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Follow
+                          </span>
+                        )}
+                        {notification.sessionId && (
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Session
                           </span>
                         )}
                       </div>

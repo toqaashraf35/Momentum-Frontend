@@ -5,6 +5,7 @@ import profileService from "../services/profileService";
 import availabilityService, {
   type MentorAvailabilityDTO,
 } from "../services/availabilityService";
+import { bookingService, type BookingRequestDTO } from "../services/bookingService";
 
 interface BookSessionFormData {
   sessionTopic: string;
@@ -14,6 +15,7 @@ interface BookSessionFormData {
 
 export const useBookSession = () => {
   const { profileId } = useParams<{ profileId: string }>();
+  // const navigate = useNavigate();
   const [formData, setFormData] = useState<BookSessionFormData>({
     sessionTopic: "",
     selectedDate: "",
@@ -24,6 +26,8 @@ export const useBookSession = () => {
   const [mentorAvailabilities, setMentorAvailabilities] = useState<
     MentorAvailabilityDTO[]
   >([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
 
   // Fetch mentor profile
   const fetchProfile = useCallback(
@@ -52,11 +56,7 @@ export const useBookSession = () => {
     setMentorAvailabilities(availabilities);
 
     // Extract and format dates
-    const dates = availabilities.map((a) => {
-      // الـ date بيكون string بالفعل من الـ API
-      return a.date; // هذا بيكون بصيغة YYYY-MM-DD
-    });
-
+    const dates = availabilities.map((a) => a.date);
     setAvailableDates([...new Set(dates)].sort());
   }, [availabilities]);
 
@@ -67,27 +67,17 @@ export const useBookSession = () => {
       return;
     }
 
-    console.log("Looking for date:", formData.selectedDate);
-    console.log("Available dates:", availableDates);
-
-    // Find availability for selected date
-    const selectedAvailability = mentorAvailabilities.find((a) => {
-      console.log("Comparing:", a.date, "with", formData.selectedDate);
-      return a.date === formData.selectedDate;
-    });
-
-    console.log("Found availability:", selectedAvailability);
+    const selectedAvailability = mentorAvailabilities.find(
+      (a) => a.date === formData.selectedDate
+    );
 
     if (selectedAvailability && selectedAvailability.availableSlots) {
-      const times = selectedAvailability.availableSlots.map((slot) => {        
-        return slot.startTime.slice(0, 5);
-      });
-
-      console.log("Extracted times:", times);
+      const times = selectedAvailability.availableSlots.map((slot) =>
+        slot.startTime.slice(0, 5)
+      );
       setAvailableTimes(times);
       setFormData((prev) => ({ ...prev, selectedTime: "" }));
     } else {
-      console.log("No availability found for selected date");
       setAvailableTimes([]);
     }
   }, [formData.selectedDate, mentorAvailabilities]);
@@ -113,20 +103,83 @@ export const useBookSession = () => {
     } else {
       setFormData((prev) => ({ ...prev, [name]: value }));
     }
+    setBookingError(null); // Clear error when user makes changes
   };
 
   const handleTimeSelect = (time: string) => {
     setFormData((prev) => ({ ...prev, selectedTime: time }));
+    setBookingError(null); // Clear error when user makes changes
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+ 
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Booking session:", {
-      ...formData,
-      mentorId: profileId,
-      mentorName: mentor?.name,
-    });
+
+    if (!profileId || !mentor) {
+      setBookingError("Mentor information is missing");
+      return;
+    }
+
+    if (
+      !formData.selectedDate ||
+      !formData.selectedTime ||
+      !formData.sessionTopic
+    ) {
+      setBookingError("Please fill all required fields");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setBookingError(null);
+
+    try {
+      // Combine date and time to create startTime
+      const startDateTime = new Date(
+        `${formData.selectedDate}T${formData.selectedTime}:00`
+      );
+
+      const bookingRequest: BookingRequestDTO = {
+        subject: formData.sessionTopic,
+        startTime: startDateTime.toISOString(),
+        durationMinutes: 60,
+      };
+
+      console.log("Creating booking with:", {
+        mentorId: profileId,
+        request: bookingRequest,
+      });
+
+      const bookingResponse = await bookingService.createBooking(
+        Number(profileId),
+        bookingRequest
+      );
+
+      console.log("Booking created successfully:", bookingResponse);
+
+      // Reset form after successful booking
+      setFormData({
+        sessionTopic: "",
+        selectedDate: "",
+        selectedTime: "",
+      });
+
+      return bookingResponse; 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      console.error("Booking creation failed:", error);
+      setBookingError(
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to create booking. Please try again."
+      );
+      throw error; 
+    } finally {
+      setIsSubmitting(false);
+    }
   };
+
+  // ... باقي الكود ...
 
   return {
     formData,
@@ -136,6 +189,8 @@ export const useBookSession = () => {
     mentorLoading,
     mentorError,
     availabilitiesLoading,
+    isSubmitting,
+    bookingError,
     handleSelectChange,
     handleTimeSelect,
     handleSubmit,
