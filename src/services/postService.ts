@@ -59,7 +59,7 @@ class PostService {
    */
   async createRegularPost(postData: PostRequestDTO): Promise<PostResponseDTO> {
     try {
-      const response = await api.post<PostResponseDTO>('/post/regular/create', postData);
+      const response = await api.post<PostResponseDTO>(`/post/regular/create/${postData.communityId}`, postData);
       return response.data;
     } catch (error) {
       throw error;
@@ -82,7 +82,7 @@ class PostService {
         ...(postData.requiredSkills && postData.requiredSkills.length > 0 ? { requiredSkills: postData.requiredSkills } : {})
       };
       
-      const response = await api.post<PostResponseDTO>('/post/project/create', cleanedData);
+      const response = await api.post<PostResponseDTO>(`/post/project/create/${postData.communityId}`, cleanedData);
       return response.data;
     } catch (error) {
       throw error;
