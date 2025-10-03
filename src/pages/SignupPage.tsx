@@ -1,4 +1,3 @@
-// pages/SignupPage.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "../hooks/useForm";
@@ -8,13 +7,15 @@ import Select from "../components/Select";
 import authService from "../services/authService";
 import { validateSignup } from "../utils/validateSignup";
 import { useOptions } from "../hooks/useOptions";
-import OutsideHeader from "../layouts/OutsideHeader";
+import OutsideHeader from "../components/OutsideHeader";
 import Logo from "../assets/Logo.png";
+import Alert from "../components/Alert";
 
 export default function SignupPage() {
   const navigate = useNavigate();
   const { countries, tags, jobTitles, loading } = useOptions();
   const [isMentor, setIsMentor] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
 
   type SignupForm = {
     name: string;
@@ -35,6 +36,7 @@ export default function SignupPage() {
     errors,
     isSubmitting,
     handleChange,
+    handleSelectChange, 
     handleSubmit,
     setFieldValue,
     setErrors,
@@ -60,6 +62,7 @@ export default function SignupPage() {
     }
 
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const registerData: any = {
         name: values.name,
         username: values.username,
@@ -77,7 +80,8 @@ export default function SignupPage() {
       }
 
       await authService.signup(registerData);
-      navigate("/login");
+
+      setShowAlert(true);
     } catch (err: unknown) {
       if (err instanceof Error) setErrors({ submit: err.message });
       else setErrors({ submit: "Signup failed" });
@@ -88,7 +92,7 @@ export default function SignupPage() {
     <>
       <OutsideHeader logo={Logo} />
 
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="bg-white rounded-2xl w-full max-w-3xl p-10">
           <div className="text-center mb-10">
             <h1 className="text-2xl font-bold text-gray-800 mb-2">
@@ -152,7 +156,7 @@ export default function SignupPage() {
                 label="Country"
                 name="country"
                 value={values.country}
-                onChange={(e) => setFieldValue("country", e.target.value)}
+                onChange={(value) => handleSelectChange("country", value)} // استخدمي handleSelectChange هنا
                 options={countries}
                 error={errors.country}
                 disabled={isSubmitting || loading}
@@ -196,24 +200,24 @@ export default function SignupPage() {
                     label="Job Title"
                     name="jobTitle"
                     value={values.jobTitle}
-                    onChange={(e) => setFieldValue("jobTitle", e.target.value)}
+                    onChange={(value) => handleSelectChange("jobTitle", value)} 
                     options={jobTitles}
                     error={errors.jobTitle}
                     disabled={isSubmitting || loading}
                   />
-
                   <Select
                     id="Tags"
                     label="Tags"
                     name="tags"
                     value={values.tags}
-                    onChange={(e) => setFieldValue("tags", e.target.value)}
+                    onChange={(value) => handleSelectChange("tags", value)} 
                     options={tags}
                     multiple
                     error={errors.tags}
                     disabled={isSubmitting || loading}
                   />
                 </div>
+
                 <div className="flex flex-col md:flex-row gap-6 justify-between w-full">
                   <Input
                     id="hourRate"
@@ -227,14 +231,13 @@ export default function SignupPage() {
                     disabled={isSubmitting}
                     size="lg"
                   />
-
                   <Input
                     id="cvFile"
                     name="cvFile"
                     type="file"
                     label="Upload CV"
                     onChange={(e) =>
-                      setFieldValue("cvFile", e.target.files?.[0] || null)
+                      setFieldValue("cvFile", e.target.files?.[0] || undefined)
                     }
                     error={errors.cvFile}
                     size="lg"
@@ -248,7 +251,8 @@ export default function SignupPage() {
               type="submit"
               isLoading={isSubmitting}
               disabled={isSubmitting || loading}
-              className="w-full"
+              color="primary"
+              size="xl"
             >
               Sign up
             </Button>
@@ -262,6 +266,8 @@ export default function SignupPage() {
                 setIsMentor((prev) => !prev);
                 setFieldValue("role", isMentor ? "LEARNER" : "MENTOR");
               }}
+              color="primary"
+              size="xl"
             />
 
             {/* Error Display */}
@@ -270,9 +276,31 @@ export default function SignupPage() {
                 {errors.submit}
               </p>
             )}
+
+            <div className="text-center text-[var(--dim)] text-sm mt-6">
+              Already have an account?{" "}
+              <a
+                href="/login"
+                className="text-[var(--primary)] font-semibold hover:text-[var(--secondary)] transition-colors duration-200"
+              >
+                Login
+              </a>
+            </div>
           </form>
         </div>
       </div>
+
+      {/* ✅ Success Alert */}
+      {showAlert && (
+        <Alert
+          title="Signup Successful 🎉"
+          description="Your account has been created successfully!"
+          confirmText="Go to Login"
+          cancelText="Close"
+          onConfirm={() => navigate("/login")}
+          onCancel={() => setShowAlert(false)}
+        />
+      )}
     </>
   );
 }

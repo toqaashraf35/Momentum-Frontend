@@ -4,6 +4,7 @@ import axios from "axios";
 const API_BASE = import.meta.env.VITE_API_BASE || "http://localhost:8081/api";
 
 export interface LoginResponse {
+  role: string;
   id: number;
   name: string;
   username: string;
@@ -51,6 +52,7 @@ const login = async (
       const backendMessage =
         typeof err.response.data === "string"
           ? err.response.data
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           : (err.response.data as any).message || "Login failed";
       throw new Error(backendMessage);
     } else if (err instanceof Error) {
@@ -66,6 +68,7 @@ const signup = async (data: SignupValues): Promise<RegisterResponse> => {
     const formData = new FormData();
     Object.entries(data).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         formData.append(key, value as any);
       }
     });
@@ -83,6 +86,7 @@ const signup = async (data: SignupValues): Promise<RegisterResponse> => {
       const backendMessage =
         typeof err.response.data === "string"
           ? err.response.data
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           : (err.response.data as any).message || "Signup failed";
       throw new Error(backendMessage);
     } else if (err instanceof Error) {

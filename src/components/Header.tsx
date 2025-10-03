@@ -13,13 +13,19 @@ import {
   User as UserIcon,
   Menu,
 } from "lucide-react";
-import { useUser } from "../hooks/useUser";
-import Avatar from "../components/Avatar"; // Import the Avatar component
+import { useFetch } from "../hooks/useFetch";
+import Avatar from "./Avatar";
+import profileService from "../services/profileService";
 
-const Header = () => {
+type HeaderProps = {
+  onLogoutClick: () => void;
+};
+
+const Header = ({ onLogoutClick }: HeaderProps) => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const { userProfile, loading } = useUser();
+
+  const { data: userProfile, loading } = useFetch(profileService.getMyProfile);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,6 +35,7 @@ const Header = () => {
     { name: "Communities", icon: MessageCircle, link: "/communities" },
     { name: "Chatbot", icon: Bot, link: "/chatbot" },
   ];
+
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -144,7 +151,7 @@ const Header = () => {
                   <div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse"></div>
                 ) : (
                   <Avatar
-                    src={userProfile?.avatarURL}
+                    src={userProfile?.avatarUrl}
                     name={userProfile?.name}
                     size="sm"
                   />
@@ -164,7 +171,7 @@ const Header = () => {
                 <div className="absolute right-0 top-full mt-2 w-48 md:w-72 bg-white rounded-xl shadow-lg border border-[var(--border)] py-4 z-50">
                   <div className="flex items-center gap-3 px-4 md:px-5 pb-3">
                     <Avatar
-                      src={userProfile?.avatarURL}
+                      src={userProfile?.avatarUrl}
                       name={userProfile?.name}
                       size="md"
                     />
@@ -198,7 +205,7 @@ const Header = () => {
 
                   <button
                     className="flex items-center gap-3 w-full px-4 md:px-5 py-2 text-sm hover:bg-gray-50 hover:text-[var(--primary)]"
-                    onClick={handleLogout}
+                    onClick={onLogoutClick}
                   >
                     <LogOut size={16} />
                     <span>Logout</span>

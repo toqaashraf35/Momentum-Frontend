@@ -2,12 +2,13 @@
 :root{
     --primary: #2563EB;
     --secondary: #1D4ED8;
-    --light: #EFF6FF;
+    --light: #ecf4ff;
     --main: #1F2937;
     --dim: #6B7280;
     --border: #D1D5DB;
     --bg: #F9FAFB;
 }
+
 
 @keyframes fade-in {
     from {
@@ -23,3 +24,8 @@
 .animate-fade-in {
     animation: fade-in 0.3s ease-out;
 }
+
+html, body {
+   background-color: var(--bg);
+}
+

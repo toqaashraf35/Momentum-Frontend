@@ -1,28 +1,47 @@
-// hooks/useForm.ts
 import { useState, useCallback } from "react";
 
-export function useForm<T extends Record<string, any>>(initialValues: T) {
+export type FormErrors<T> = Partial<Record<keyof T, string>> & {
+  submit?: string;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const useForm = <T extends Record<string, any>>(initialValues: T) => {
   const [values, setValues] = useState<T>(initialValues);
-  const [errors, setErrors] = useState<
-    Partial<Record<keyof T, string>> & { submit?: string }
-  >({});
+  const [errors, setErrors] = useState<FormErrors<T>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = useCallback(
     (
       e: React.ChangeEvent<
-        HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
+        HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
       >
     ) => {
-      const { name, type, value, files } = e.target as HTMLInputElement;
+      const { name, value, type } = e.target;
 
-      let newValue: any = value;
-      if (type === "file") newValue = files?.[0] ?? null;
-      if (type === "number") newValue = value ? Number(value) : "";
+      if (type === "file") {
+        const files = (e.target as HTMLInputElement).files;
+        setValues((prev) => ({
+          ...prev,
+          [name]: files?.[0] || undefined,
+        }));
+      } else if (type === "select-multiple") {
+        const selectedOptions = Array.from(
+          (e.target as HTMLSelectElement).selectedOptions
+        );
+        const selectedValues = selectedOptions.map((option) => option.value);
+        setValues((prev) => ({
+          ...prev,
+          [name]: selectedValues,
+        }));
+      } else {
+        setValues((prev) => ({
+          ...prev,
+          [name]: value,
+        }));
+      }
 
-      setValues((prev) => ({ ...prev, [name]: newValue }));
-
-      if (errors[name as keyof T]) {
+      // Clear error when user starts typing
+      if (name in errors) {
         setErrors((prev) => {
           const newErrors = { ...prev };
           delete newErrors[name as keyof T];
@@ -33,32 +52,70 @@ export function useForm<T extends Record<string, any>>(initialValues: T) {
     [errors]
   );
 
-  const setFieldValue = useCallback((name: keyof T, value: any) => {
-    setValues((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  const handleSelectChange = useCallback(
+    (
+      name: keyof T,
+      value: string | string[] | React.ChangeEvent<HTMLSelectElement>
+    ) => {
+      let finalValue: string | string[];
 
-  const handleSubmit = useCallback(async (onSubmit: () => Promise<void>) => {
-    setIsSubmitting(true);
-    try {
-      await onSubmit();
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, []);
+      if (typeof value === "object" && "target" in value) {
+        if (value.target.multiple) {
+          finalValue = Array.from(value.target.selectedOptions).map(
+            (option) => option.value
+          );
+        } else {
+          finalValue = value.target.value;
+        }
+      } else {
+        // إذا كان value مباشر
+        finalValue = value;
+      }
 
-  const resetForm = useCallback(() => {
-    setValues(initialValues);
-    setErrors({});
-  }, [initialValues]);
+      setValues((prev) => ({
+        ...prev,
+        [name]: finalValue,
+      }));
+
+      // Clear error when value changes
+      if (name in errors) {
+        setErrors((prev) => {
+          const newErrors = { ...prev };
+          delete newErrors[name];
+          return newErrors;
+        });
+      }
+    },
+    [errors]
+  );
+
+  const setFieldValue = useCallback(
+    <K extends keyof T>(name: K, value: T[K]) => {
+      setValues((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    },
+    []
+  );
+
+  const handleSubmit = useCallback(
+    (onSubmit: (values: T) => void | Promise<void>) => {
+      setIsSubmitting(true);
+      Promise.resolve(onSubmit(values)).finally(() => setIsSubmitting(false));
+    },
+    [values]
+  );
 
   return {
     values,
     errors,
     isSubmitting,
     handleChange,
+    handleSelectChange,
     handleSubmit,
-    setErrors,
     setFieldValue,
-    resetForm,
+    setErrors,
+    setValues,
   };
-}
+};

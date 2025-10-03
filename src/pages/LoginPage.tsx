@@ -1,4 +1,3 @@
-// pages/Login.tsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
@@ -7,8 +6,8 @@ import Button from "../components/Button";
 import { useForm } from "../hooks/useForm";
 import authService from "../services/authService";
 import { validateLogin } from "../utils/validateLogin";
-import OutsideHeader from "../layouts/OutsideHeader"
-import Logo from "../assets/Logo.png"
+import OutsideHeader from "../components/OutsideHeader";
+import Logo from "../assets/Logo.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -28,31 +27,36 @@ export default function Login() {
     setErrors,
   } = useForm<LoginForm>({ email: "", password: "" });
 
-const onSubmit = async () => {
-  const validationErrors = validateLogin(values);
-  if (Object.keys(validationErrors).length > 0) {
-    setErrors(validationErrors);
-    return;
-  }
-
-  try {
-    await authService.login(values.email, values.password);
-    navigate("/");
-  } catch (err: unknown) {
-    if (err instanceof Error) {
-      setErrors({ submit: err.message }); 
-    } else {
-      setErrors({ submit: "Login failed" });
+  const onSubmit = async () => {
+    const validationErrors = validateLogin(values);
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
     }
-  }
-};
 
+    try {
+      const userData = await authService.login(values.email, values.password);
+      
+      if (userData.role === "ADMIN") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrors({ submit: err.message });
+      } else {
+        setErrors({ submit: "Login failed" });
+      }
+    }
+  };
 
   return (
-    <><div>
-      <OutsideHeader logo={Logo} />
-    </div>
-    <div className="flex justify-center items-center min-h-screen">
+    <>
+      <div>
+        <OutsideHeader logo={Logo} />
+      </div>
+      <div className="flex justify-center items-center min-h-screen bg-white">
         <div className="bg-white max-w-md p-10 w-[700px]">
           {/* Header */}
           <div className="text-center mb-10">
@@ -69,7 +73,7 @@ const onSubmit = async () => {
             onSubmit={(e) => {
               e.preventDefault();
               handleSubmit(onSubmit);
-            } }
+            }}
             className="flex flex-col items-center space-y-6"
           >
             <Input
@@ -83,9 +87,10 @@ const onSubmit = async () => {
               icon={<Mail className="w-5 h-5 text-gray-400" />}
               error={errors.email}
               disabled={isSubmitting}
-              size="lg" />
+              size="lg"
+            />
 
-            <div className="relative">
+            <div className="relative w-full">
               <Input
                 id="password"
                 name="password"
@@ -97,10 +102,11 @@ const onSubmit = async () => {
                 icon={<Lock className="w-5 h-5 text-gray-400" />}
                 error={errors.password}
                 disabled={isSubmitting}
-                size="lg" />
+                size="lg"
+              />
               <button
                 type="button"
-                className="absolute inset-y-0 right-0 top-5 pr-3 flex items-center"
+                className="absolute inset-y-0 right-0 top-8 pr-3 flex items-center"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isSubmitting}
               >
@@ -117,6 +123,8 @@ const onSubmit = async () => {
               type="submit"
               isLoading={isSubmitting}
               disabled={isSubmitting}
+              color="primary"
+              size="lg"
             >
               Login
             </Button>
@@ -127,28 +135,6 @@ const onSubmit = async () => {
                 {errors.submit}
               </div>
             )}
-
-            {/* Divider */}
-            <div className="flex items-centermy-6">
-              <div className="flex-grow border-t border-[var(--border)]"></div>
-              <span className="flex-shrink mx-4 text-[var(--dim)] text-sm">
-                Or
-              </span>
-              <div className="flex-grow border-t border-[var(--border)]"></div>
-            </div>
-
-            {/* Google Login */}
-            <button
-              type="button"
-              className="w-full py-3 flex items-center justify-center gap-2 bg-white text-gray-700 rounded-xl font-semibold border border-[var(--border)] hover:bg-[var(--bg)] transform hover:-translate-y-0.5 transition-all duration-300 shadow-sm hover:shadow-md"
-              disabled={isSubmitting}
-            >
-              <img
-                src="https://www.svgrepo.com/show/475656/google-color.svg"
-                alt="Google logo"
-                className="w-5 h-5" />
-              Sign in with Google
-            </button>
 
             {/* Footer */}
             <div className="text-center text-[var(--dim)] text-sm mt-6">
@@ -162,6 +148,7 @@ const onSubmit = async () => {
             </div>
           </form>
         </div>
-      </div></>
+      </div>
+    </>
   );
 }

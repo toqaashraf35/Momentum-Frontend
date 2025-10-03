@@ -56,7 +56,7 @@ export default function Input({
           id={id}
           name={name}
           type={type}
-          value={type === "file" ? undefined : (value as string | number)} // file ما ليهش value
+          value={type === "file" ? undefined : (value as string | number)} 
           onChange={onChange}
           onKeyDown={onKeyDown}
           placeholder={placeholder}

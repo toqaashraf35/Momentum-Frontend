@@ -1,8 +1,7 @@
-// hooks/useOptions.ts
 import { useState, useEffect } from "react";
 import { optionsService } from "../services/optionsService";
 
-export function useOptions(countryId?: number) {
+export function useOptions(countryName?: string) {
   const [countries, setCountries] = useState<string[]>([]);
   const [tags, setTags] = useState<string[]>([]);
   const [jobTitles, setJobTitles] = useState<string[]>([]);
@@ -24,21 +23,21 @@ export function useOptions(countryId?: number) {
           jobTitlesRes,
           universitiesRes,
         ] = await Promise.all([
-          optionsService.getCountriesName(),
+          optionsService.getCountries(),
           optionsService.getCountriesPhoneCodes(),
           optionsService.getTags(),
           optionsService.getJobTitles(),
           optionsService.getUniversities(),
         ]);
 
-        setCountries(countriesRes);
+        setCountries(countriesRes.map((c) => c.name));
         setPhoneCodes(phoneCodesRes);
         setTags(tagsRes);
         setJobTitles(jobTitlesRes);
         setUniversities(universitiesRes);
 
-        if (countryId) {
-          const citiesRes = await optionsService.getCitiesByCountry(countryId);
+        if (countryName) {
+          const citiesRes = await optionsService.getCitiesByCountry(countryName);
           setCities(citiesRes);
         } else {
           setCities([]);
@@ -52,7 +51,8 @@ export function useOptions(countryId?: number) {
     };
 
     fetchOptions();
-  }, [countryId]);
+  }, [countryName]);
+
   return {
     countries,
     tags,
@@ -64,4 +64,3 @@ export function useOptions(countryId?: number) {
     error,
   };
 }
-
