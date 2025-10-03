@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Heart, MessageCircle, Share2, User, Calendar } from 'lucide-react';
 import type { PostResponseDTO, ProjectPostResponseDTO } from '../services/postService';
 import { usePostActions } from '../hooks/usePost';
@@ -35,6 +36,7 @@ export const PostCard: React.FC<PostCardProps> = ({
   const [showCopyNotification, setShowCopyNotification] = useState(false);
   const { likePost, unlikePost } = usePostActions();
   const { userProfile } = useUser();
+  const navigate = useNavigate();
   const initializedFromProp = React.useRef(false);
 
   const isProjectPost = post.postType === 'PROJECT';
@@ -115,6 +117,10 @@ export const PostCard: React.FC<PostCardProps> = ({
     onCommentClick?.(post);
   };
 
+  const handleProfileClick = () => {
+    navigate(`/profile/${post.authorId}`);
+  };
+
   const handleShare = async () => {
     try {
       const postUrl = `${window.location.origin}/post/${post.id}`;
@@ -159,29 +165,34 @@ export const PostCard: React.FC<PostCardProps> = ({
       <div className="p-4 border-b border-gray-100">
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
-              <User className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <h4 className="font-semibold text-gray-900">@{post.authorUsername}</h4>
-                {isProjectPost && (
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
-                    Project
-                  </span>
-                )}
+            <button 
+              onClick={handleProfileClick}
+              className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer"
+            >
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-blue-500 to-purple-600 flex items-center justify-center">
+                <User className="w-5 h-5 text-white" />
               </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <Calendar className="w-4 h-4" />
-                <span>{formatDate(post.createdAt)}</span>
-                {showCommunityName && (
-                  <>
-                    <span>•</span>
-                    <span className="font-medium text-blue-600">{post.communityName}</span>
-                  </>
-                )}
+              <div>
+                <div className="flex items-center space-x-2">
+                  <h4 className="font-semibold text-gray-900 hover:text-blue-600 transition-colors">@{post.authorUsername}</h4>
+                  {isProjectPost && (
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full font-medium">
+                      Project
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center space-x-2 text-sm text-gray-500">
+                  <Calendar className="w-4 h-4" />
+                  <span>{formatDate(post.createdAt)}</span>
+                  {showCommunityName && (
+                    <>
+                      <span>•</span>
+                      <span className="font-medium text-blue-600">{post.communityName}</span>
+                    </>
+                  )}
+                </div>
               </div>
-            </div>
+            </button>
           </div>
         </div>
       </div>
