@@ -21,6 +21,7 @@ const CommunitiesPage: React.FC = () => {
   const [memberCountUpdates, setMemberCountUpdates] = useState<{ [key: number]: number }>({});
   const [sortBy, setSortBy] = useState<'name' | 'members'>('name');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
+  const [filterBy, setFilterBy] = useState<'all' | 'joined' | 'my'>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [editModalState, setEditModalState] = useState<{
@@ -272,15 +273,32 @@ const CommunitiesPage: React.FC = () => {
 
   // Get the communities to display (search results or all communities)
   const getDisplayCommunities = (): CommunityResponse[] => {
-    if (searchQuery.trim() && searchResults) {
-      // Use backend search results
+    let baseCommunities: CommunityResponse[] = [];
+    
+    // First, determine which set of communities to use based on filter
+    switch (filterBy) {
+      case 'joined':
+        baseCommunities = joinedCommunities || [];
+        break;
+      case 'my':
+        baseCommunities = myCommunities || [];
+        break;
+      case 'all':
+      default:
+        baseCommunities = communities || [];
+        break;
+    }
+    
+    // Then apply search filtering if there's a search query
+    if (searchQuery.trim() && searchResults && filterBy === 'all') {
+      // Use backend search results only for 'all' filter
       return searchResults.content;
-    } else if (!searchQuery.trim()) {
-      // Use all communities when not searching
-      return communities || [];
+    } else if (searchQuery.trim()) {
+      // Use client-side filtering for joined/my communities with search
+      return filterCommunities(baseCommunities);
     } else {
-      // Fallback to client-side filtering while searching
-      return filterCommunities(communities || []);
+      // No search, just return the filtered communities
+      return baseCommunities;
     }
   };
 
@@ -508,20 +526,31 @@ const CommunitiesPage: React.FC = () => {
                     </span>
                   )}
                 </p>
-                <select 
-                  value={`${sortBy}-${sortDirection}`}
-                  onChange={(e) => {
-                    const [field, direction] = e.target.value.split('-');
-                    setSortBy(field as 'name' | 'members');
-                    setSortDirection(direction as 'asc' | 'desc');
-                  }}
-                  className="px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
-                >
-                  <option value="name-asc">Sort by Name (A-Z)</option>
-                  <option value="name-desc">Sort by Name (Z-A)</option>
-                  <option value="members-desc">Sort by Members (High to Low)</option>
-                  <option value="members-asc">Sort by Members (Low to High)</option>
-                </select>
+                <div className="flex gap-3">
+                  <select 
+                    value={filterBy}
+                    onChange={(e) => setFilterBy(e.target.value as 'all' | 'joined' | 'my')}
+                    className="px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  >
+                    <option value="all">All Communities</option>
+                    <option value="joined">Joined Communities</option>
+                    <option value="my">My Communities</option>
+                  </select>
+                  <select 
+                    value={`${sortBy}-${sortDirection}`}
+                    onChange={(e) => {
+                      const [field, direction] = e.target.value.split('-');
+                      setSortBy(field as 'name' | 'members');
+                      setSortDirection(direction as 'asc' | 'desc');
+                    }}
+                    className="px-3 py-2 border border-[var(--border)] rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[var(--primary)] focus:border-transparent"
+                  >
+                    <option value="name-asc">Sort by Name (A-Z)</option>
+                    <option value="name-desc">Sort by Name (Z-A)</option>
+                    <option value="members-desc">Sort by Members (High to Low)</option>
+                    <option value="members-asc">Sort by Members (Low to High)</option>
+                  </select>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
